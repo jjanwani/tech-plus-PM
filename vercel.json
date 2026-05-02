@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/burndown",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}
