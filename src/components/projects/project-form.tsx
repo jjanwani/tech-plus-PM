@@ -12,9 +12,17 @@ interface ProjectFormProps {
   project?: Project
 }
 
+function currentTermYear(): { term: 'fall' | 'winter'; year: number } {
+  const now = new Date()
+  const month = now.getMonth() + 1
+  // Winter term roughly Jan-Apr, Fall term roughly Aug-Dec
+  return month <= 6 ? { term: 'winter', year: now.getFullYear() } : { term: 'fall', year: now.getFullYear() }
+}
+
 export function ProjectForm({ project }: ProjectFormProps) {
   const router = useRouter()
   const isEditing = !!project
+  const defaultTermYear = currentTermYear()
 
   const {
     register,
@@ -30,7 +38,8 @@ export function ProjectForm({ project }: ProjectFormProps) {
       description: project?.description ?? '',
       type: project?.type ?? 'internal',
       client_name: project?.client_name ?? '',
-      semester: project?.semester ?? '',
+      term: project?.term ?? defaultTermYear.term,
+      year: project?.year ?? defaultTermYear.year,
     },
   })
 
@@ -142,16 +151,28 @@ export function ProjectForm({ project }: ProjectFormProps) {
           {errors.client_name && <p className="text-xs text-red-500 mt-1">{errors.client_name.message}</p>}
         </div>
 
-        {projectType === 'external' && (
+        <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Semester</label>
-            <input
-              {...register('semester')}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
-              placeholder="e.g. Fall 2025"
-            />
+            <label className="block text-sm font-medium text-gray-700 mb-1">Term</label>
+            <select
+              {...register('term')}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white"
+            >
+              <option value="fall">Fall</option>
+              <option value="winter">Winter</option>
+            </select>
           </div>
-        )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
+            <input
+              type="number"
+              {...register('year', { valueAsNumber: true })}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+              placeholder="e.g. 2025"
+            />
+            {errors.year && <p className="text-xs text-red-500 mt-1">{errors.year.message}</p>}
+          </div>
+        </div>
 
         <div className="flex items-center gap-3 pt-2">
           <button

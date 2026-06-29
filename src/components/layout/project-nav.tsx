@@ -14,6 +14,7 @@ const tabs = [
   { label: 'Backlog', href: '/backlog' },
   { label: 'Roadmap', href: '/roadmap' },
   { label: 'Sprints', href: '/sprints' },
+  { label: 'Deliverables', href: '/deliverables' },
   { label: 'Reports', href: '/reports' },
   { label: 'Settings', href: '/settings' },
 ]

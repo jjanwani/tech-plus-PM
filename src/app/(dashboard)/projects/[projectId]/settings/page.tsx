@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation'
 import { Settings } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { ProjectForm } from '@/components/projects/project-form'
+import { ArchiveProjectButton } from '@/components/projects/archive-project-button'
 import type { Project } from '@/types'
 
 export default async function ProjectSettingsPage({
@@ -33,6 +34,14 @@ export default async function ProjectSettingsPage({
       <div className="bg-white border border-gray-200 rounded-xl p-6">
         <h3 className="text-sm font-semibold text-gray-700 mb-4">General</h3>
         <ProjectForm project={project as Project} />
+      </div>
+
+      <div className="bg-white border border-red-200 rounded-xl p-6 mt-6">
+        <h3 className="text-sm font-semibold text-red-700 mb-2">Danger Zone</h3>
+        <p className="text-xs text-gray-500 mb-4">
+          Archiving moves this project into its semester folder on the projects list. It can be restored later.
+        </p>
+        <ArchiveProjectButton projectId={project.id} isArchived={project.is_archived} />
       </div>
     </div>
   )

@@ -9,6 +9,7 @@ export type UserRole =
   | 'president'
 
 export type ProjectType = 'internal' | 'external'
+export type ProjectTerm = 'fall' | 'winter'
 export type IssueType = 'epic' | 'story' | 'task' | 'subtask'
 export type IssuePriority = 'critical' | 'high' | 'medium' | 'low'
 export type SprintStatus = 'planning' | 'active' | 'completed'
@@ -42,6 +43,8 @@ export interface Project {
   type: ProjectType
   client_name: string | null
   semester: string | null
+  term: ProjectTerm | null
+  year: number | null
   is_archived: boolean
   owner_id: string | null
   onedrive_folder_id: string | null
@@ -176,6 +179,23 @@ export interface Notification {
   actor?: Pick<Profile, 'id' | 'full_name' | 'avatar_url'>
 }
 
+export interface Deliverable {
+  id: string
+  project_id: string
+  title: string
+  description: string | null
+  link_url: string | null
+  onedrive_item_id: string | null
+  onedrive_web_url: string | null
+  due_date: string | null
+  responsible_id: string | null
+  is_complete: boolean
+  created_by: string
+  created_at: string
+  updated_at: string
+  responsible?: Profile
+}
+
 export interface Template {
   id: string
   name: string
@@ -211,11 +231,20 @@ export interface ProjectSummary {
   type: ProjectType
   client_name: string | null
   semester: string | null
+  term: ProjectTerm | null
+  year: number | null
   is_archived: boolean
   open_issues: number
   total_issues: number
   member_count: number
   current_sprint_end: string | null
+}
+
+const TERM_CODE: Record<ProjectTerm, string> = { fall: 'FA', winter: 'WN' }
+
+export function semesterCode(term: ProjectTerm | null, year: number | null): string | null {
+  if (!term || !year) return null
+  return `${TERM_CODE[term]}${String(year).slice(-2)}`
 }
 
 export const ROLE_HIERARCHY: UserRole[] = [
