@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { Users, CheckSquare, Clock } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { timeAgo } from '@/lib/utils/date'
-import type { ProjectSummary } from '@/types'
+import { semesterCode, type ProjectSummary } from '@/types'
 
 interface ProjectCardProps {
   project: ProjectSummary
@@ -36,8 +36,8 @@ export function ProjectCard({ project }: ProjectCardProps) {
         </div>
       </div>
 
-      {project.semester && (
-        <p className="text-xs text-gray-400 mb-3">{project.semester}</p>
+      {semesterCode(project.term, project.year) && (
+        <p className="text-xs text-gray-400 mb-3">{semesterCode(project.term, project.year)}</p>
       )}
 
       <div className="flex items-center gap-4 text-xs text-gray-500">
