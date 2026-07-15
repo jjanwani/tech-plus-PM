@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { randomUUID } from 'node:crypto'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { uploadFile } from '@/lib/msgraph/files'
 import { z } from 'zod'
 
 const templateSchema = z.object({
@@ -40,26 +40,26 @@ export async function POST(request: NextRequest) {
 
   const arrayBuffer = await file.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
+  const storagePath = `${randomUUID()}-${file.name}`
 
-  let driveItem
-  try {
-    driveItem = await uploadFile(
-      process.env.MSGRAPH_ROOT_FOLDER_ID!,
-      `Templates/${file.name}`,
-      buffer,
-      file.type || 'application/octet-stream'
-    )
-  } catch (e) {
-    console.error('Template upload error:', e)
+  const { error: uploadError } = await supabase.storage
+    .from('templates')
+    .upload(storagePath, buffer, { contentType: file.type || 'application/octet-stream' })
+
+  if (uploadError) {
+    console.error('Template upload error:', uploadError)
     return NextResponse.json({ error: 'File upload failed' }, { status: 500 })
   }
+
+  const { data: { publicUrl } } = supabase.storage.from('templates').getPublicUrl(storagePath)
 
   const { data, error } = await supabase
     .from('templates')
     .insert({
       ...parsed.data,
-      onedrive_item_id: driveItem.id,
-      onedrive_web_url: driveItem.webUrl,
+      file_path: storagePath,
+      file_name: file.name,
+      file_url: publicUrl,
       created_by: user.id,
     })
     .select()

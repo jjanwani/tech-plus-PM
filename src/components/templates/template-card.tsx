@@ -44,13 +44,13 @@ export function TemplateCard({ template }: TemplateCardProps) {
         </div>
 
         <a
-          href={template.onedrive_web_url}
+          href={template.file_url}
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 px-3 py-1.5 bg-[#1e3a5f] text-white rounded-lg text-xs font-medium hover:bg-[#2d5a8e] transition-colors"
         >
           <ExternalLink className="w-3 h-3" />
-          Open in OneDrive
+          Open Template
         </a>
       </div>
     </div>

@@ -291,13 +291,13 @@ export function DeliverableList({ projectId, initialDeliverables, members, canMa
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 )}
-                {deliverable.onedrive_web_url && (
+                {deliverable.file_url && (
                   <a
-                    href={deliverable.onedrive_web_url}
+                    href={deliverable.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-1.5 rounded hover:bg-gray-100 text-blue-400 hover:text-blue-600 transition-colors"
-                    title="Open file in OneDrive"
+                    title="Open uploaded file"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>

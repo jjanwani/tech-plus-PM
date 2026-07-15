@@ -185,8 +185,9 @@ export interface Deliverable {
   title: string
   description: string | null
   link_url: string | null
-  onedrive_item_id: string | null
-  onedrive_web_url: string | null
+  file_path: string | null
+  file_name: string | null
+  file_url: string | null
   due_date: string | null
   responsible_id: string | null
   is_complete: boolean
@@ -201,8 +202,9 @@ export interface Template {
   name: string
   description: string | null
   project_type: ProjectType | null
-  onedrive_item_id: string
-  onedrive_web_url: string
+  file_path: string
+  file_name: string
+  file_url: string
   created_by: string | null
   created_at: string
   updated_at: string

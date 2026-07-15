@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import { randomUUID } from 'node:crypto'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { uploadFile } from '@/lib/msgraph/files'
 
 type Params = { params: Promise<{ projectId: string; deliverableId: string }> }
 
@@ -14,29 +14,27 @@ export async function POST(request: NextRequest, { params }: Params) {
   const file = formData.get('file') as File | null
   if (!file) return NextResponse.json({ error: 'No file provided' }, { status: 400 })
 
-  const { data: project } = await supabase
-    .from('projects')
-    .select('onedrive_folder_id')
-    .eq('id', projectId)
-    .single()
-
   const arrayBuffer = await file.arrayBuffer()
   const buffer = Buffer.from(arrayBuffer)
+  const storagePath = `${projectId}/${randomUUID()}-${file.name}`
 
-  let driveItem
-  try {
-    const folderId = project?.onedrive_folder_id ?? process.env.MSGRAPH_ROOT_FOLDER_ID!
-    driveItem = await uploadFile(folderId, file.name, buffer, file.type || 'application/octet-stream')
-  } catch (e) {
-    console.error('OneDrive upload error:', e)
+  const { error: uploadError } = await supabase.storage
+    .from('deliverables')
+    .upload(storagePath, buffer, { contentType: file.type || 'application/octet-stream' })
+
+  if (uploadError) {
+    console.error('Deliverable upload error:', uploadError)
     return NextResponse.json({ error: 'File upload failed' }, { status: 500 })
   }
+
+  const { data: { publicUrl } } = supabase.storage.from('deliverables').getPublicUrl(storagePath)
 
   const { data, error } = await supabase
     .from('deliverables')
     .update({
-      onedrive_item_id: driveItem.id,
-      onedrive_web_url: driveItem.webUrl,
+      file_path: storagePath,
+      file_name: file.name,
+      file_url: publicUrl,
     })
     .eq('id', deliverableId)
     .select('*, responsible:responsible_id(id,full_name,avatar_url)')
