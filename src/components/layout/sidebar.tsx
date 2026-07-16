@@ -45,8 +45,8 @@ const navItems = [
 // admins or anyone meeting that role threshold.
 const adminItems: AdminNavItem[] = [
   { label: 'Users', href: '/admin/users', icon: Users, adminOnly: true },
-  { label: 'Files', href: '/admin/files', icon: FolderOpen, adminOnly: true },
   { label: 'Client Applications', href: '/clients', icon: Briefcase, minRole: 'consulting_manager' },
+  { label: 'Files', href: '/admin/files', icon: FolderOpen, adminOnly: true },
 ]
 
 export function Sidebar({ profile }: SidebarProps) {
