@@ -179,6 +179,68 @@ export interface Notification {
   actor?: Pick<Profile, 'id' | 'full_name' | 'avatar_url'>
 }
 
+export type AdminFileCategory =
+  | 'receipts'
+  | 'powerpoints'
+  | 'photos_events'
+  | 'forms_applications'
+  | 'flyers'
+  | 'excel_sheets_trackers'
+  | 'emails'
+
+export const ADMIN_FILE_CATEGORIES: AdminFileCategory[] = [
+  'receipts',
+  'powerpoints',
+  'photos_events',
+  'forms_applications',
+  'flyers',
+  'excel_sheets_trackers',
+  'emails',
+]
+
+export const ADMIN_FILE_CATEGORY_LABELS: Record<AdminFileCategory, string> = {
+  receipts: 'Receipts',
+  powerpoints: 'Powerpoints',
+  photos_events: 'Photos/Events',
+  forms_applications: 'Forms/Applications',
+  flyers: 'Flyers',
+  excel_sheets_trackers: 'Excel Sheets & Trackers',
+  emails: 'Emails',
+}
+
+export interface AdminFile {
+  id: string
+  category: AdminFileCategory
+  file_name: string
+  file_path: string
+  file_size: number | null
+  mime_type: string | null
+  uploaded_by: string | null
+  created_at: string
+  uploader?: Profile
+  // added client-side after generating a signed URL — not a DB column
+  signed_url?: string | null
+}
+
+export interface Client {
+  id: string
+  name: string
+  contact_name: string | null
+  contact_email: string | null
+  notes: string | null
+  assigned_manager_id: string | null
+  outreach_email_done: boolean
+  outreach_email_done_at: string | null
+  interview_done: boolean
+  interview_done_at: string | null
+  evaluation_done: boolean
+  evaluation_done_at: string | null
+  created_by: string
+  created_at: string
+  updated_at: string
+  assigned_manager?: Profile
+}
+
 export interface Deliverable {
   id: string
   project_id: string

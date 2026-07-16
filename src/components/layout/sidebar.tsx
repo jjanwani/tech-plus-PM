@@ -10,12 +10,15 @@ import {
   FileText,
   Bell,
   Users,
+  Briefcase,
+  FolderOpen,
   ChevronLeft,
   ChevronRight,
   LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
+import { hasMinRole } from '@/lib/utils/permissions'
 import type { Profile } from '@/types'
 
 interface SidebarProps {
@@ -27,11 +30,13 @@ const navItems = [
   { label: 'Projects', href: '/projects', icon: FolderKanban },
   { label: 'Issues', href: '/issues', icon: CheckSquare },
   { label: 'Templates', href: '/templates', icon: FileText },
+  { label: 'Client Applications', href: '/clients', icon: Briefcase, minRole: 'consulting_manager' as const },
   { label: 'Notifications', href: '/notifications', icon: Bell },
 ]
 
 const adminItems = [
   { label: 'Users', href: '/admin/users', icon: Users },
+  { label: 'Files', href: '/admin/files', icon: FolderOpen },
 ]
 
 export function Sidebar({ profile }: SidebarProps) {
@@ -99,7 +104,9 @@ export function Sidebar({ profile }: SidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 space-y-0.5">
-        {navItems.map((item) => {
+        {navItems
+          .filter((item) => !item.minRole || profile.is_admin || hasMinRole(profile.role, item.minRole))
+          .map((item) => {
           const Icon = item.icon
           const active = isActive(item.href)
           return (
