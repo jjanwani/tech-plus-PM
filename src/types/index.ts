@@ -222,19 +222,48 @@ export interface AdminFile {
   signed_url?: string | null
 }
 
+export type ClientApplicationStatus =
+  | 'initial_outreach'
+  | 'applied'
+  | 'interview_set_up'
+  | 'interview_complete'
+  | 'offer_sent'
+  | 'offer_accepted'
+
+export const CLIENT_STATUS_ORDER: ClientApplicationStatus[] = [
+  'initial_outreach',
+  'applied',
+  'interview_set_up',
+  'interview_complete',
+  'offer_sent',
+  'offer_accepted',
+]
+
+export const CLIENT_STATUS_LABELS: Record<ClientApplicationStatus, string> = {
+  initial_outreach: 'Initial Outreach',
+  applied: 'Applied',
+  interview_set_up: 'Interview Set Up',
+  interview_complete: 'Interview Complete',
+  offer_sent: 'Offer Sent',
+  offer_accepted: 'Offer Accepted',
+}
+
 export interface Client {
   id: string
-  name: string
+  company: string
+  type: ProjectType
+  status: ClientApplicationStatus
+  industry: string | null
+  description: string | null
+  size: string | null
+  location: string | null
   contact_name: string | null
   contact_email: string | null
-  notes: string | null
+  phone_number: string | null
   assigned_manager_id: string | null
-  outreach_email_done: boolean
-  outreach_email_done_at: string | null
-  interview_done: boolean
-  interview_done_at: string | null
-  evaluation_done: boolean
-  evaluation_done_at: string | null
+  date_contacted: string | null
+  source: string | null
+  notes: string | null
   created_by: string
   created_at: string
   updated_at: string

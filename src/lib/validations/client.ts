@@ -1,25 +1,32 @@
 import { z } from 'zod'
 
+const CLIENT_STATUSES = [
+  'initial_outreach',
+  'applied',
+  'interview_set_up',
+  'interview_complete',
+  'offer_sent',
+  'offer_accepted',
+] as const
+
 export const createClientSchema = z.object({
-  name:                z.string().min(1).max(150),
+  company:             z.string().min(1).max(150),
+  type:                z.enum(['internal', 'external']),
+  industry:            z.string().optional(),
+  description:         z.string().optional(),
+  size:                z.string().optional(),
+  location:            z.string().optional(),
   contact_name:        z.string().optional(),
   contact_email:       z.string().email().optional().or(z.literal('')),
+  phone_number:        z.string().optional(),
+  assigned_manager_id: z.string().uuid().optional(),
+  date_contacted:      z.string().optional(),
+  source:              z.string().optional(),
   notes:               z.string().optional(),
-  assigned_manager_id: z.string().uuid(),
 })
 
-export const updateClientSchema = z.object({
-  name:                   z.string().min(1).max(150).optional(),
-  contact_name:           z.string().optional(),
-  contact_email:          z.string().email().optional().or(z.literal('')),
-  notes:                  z.string().optional(),
-  assigned_manager_id:    z.string().uuid().optional(),
-  outreach_email_done:    z.boolean().optional(),
-  outreach_email_done_at: z.string().optional().nullable(),
-  interview_done:         z.boolean().optional(),
-  interview_done_at:      z.string().optional().nullable(),
-  evaluation_done:        z.boolean().optional(),
-  evaluation_done_at:     z.string().optional().nullable(),
+export const updateClientSchema = createClientSchema.partial().extend({
+  status: z.enum(CLIENT_STATUSES).optional(),
 })
 
 export type CreateClientInput = z.infer<typeof createClientSchema>

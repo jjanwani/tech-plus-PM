@@ -3,7 +3,6 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { updateClientSchema } from '@/lib/validations/client'
 
 const MANAGE_ROLES = ['vp_operations', 'president', 'vp_external']
-const CHECKLIST_FIELDS = ['outreach_email', 'interview', 'evaluation'] as const
 
 type Params = { params: Promise<{ clientId: string }> }
 
@@ -29,19 +28,6 @@ export async function PATCH(request: NextRequest, { params }: Params) {
 
   const updates: Record<string, unknown> = { ...parsed.data }
   if ('contact_email' in updates) updates.contact_email = updates.contact_email || null
-
-  const today = new Date().toISOString().slice(0, 10)
-  for (const field of CHECKLIST_FIELDS) {
-    const doneKey = `${field}_done`
-    const atKey = `${field}_done_at`
-    if (doneKey in updates) {
-      if (updates[doneKey] === true && !updates[atKey]) {
-        updates[atKey] = today
-      } else if (updates[doneKey] === false) {
-        updates[atKey] = null
-      }
-    }
-  }
 
   const { data, error } = await supabase
     .from('clients')

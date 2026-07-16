@@ -19,10 +19,18 @@ import {
 import { cn } from '@/lib/utils/cn'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import { hasMinRole } from '@/lib/utils/permissions'
-import type { Profile } from '@/types'
+import type { Profile, UserRole } from '@/types'
 
 interface SidebarProps {
   profile: Profile
+}
+
+interface AdminNavItem {
+  label: string
+  href: string
+  icon: typeof Users
+  adminOnly?: boolean
+  minRole?: UserRole
 }
 
 const navItems = [
@@ -30,13 +38,15 @@ const navItems = [
   { label: 'Projects', href: '/projects', icon: FolderKanban },
   { label: 'Issues', href: '/issues', icon: CheckSquare },
   { label: 'Templates', href: '/templates', icon: FileText },
-  { label: 'Client Applications', href: '/clients', icon: Briefcase, minRole: 'consulting_manager' as const },
   { label: 'Notifications', href: '/notifications', icon: Bell },
 ]
 
-const adminItems = [
-  { label: 'Users', href: '/admin/users', icon: Users },
-  { label: 'Files', href: '/admin/files', icon: FolderOpen },
+// adminOnly items require profile.is_admin; minRole items are visible to
+// admins or anyone meeting that role threshold.
+const adminItems: AdminNavItem[] = [
+  { label: 'Users', href: '/admin/users', icon: Users, adminOnly: true },
+  { label: 'Files', href: '/admin/files', icon: FolderOpen, adminOnly: true },
+  { label: 'Client Applications', href: '/clients', icon: Briefcase, minRole: 'consulting_manager' },
 ]
 
 export function Sidebar({ profile }: SidebarProps) {
@@ -53,6 +63,12 @@ export function Sidebar({ profile }: SidebarProps) {
     if (href === '/') return pathname === '/'
     return pathname.startsWith(href)
   }
+
+  const visibleAdminItems = adminItems.filter((item) => {
+    if (profile.is_admin) return true
+    if (item.adminOnly) return false
+    return item.minRole ? hasMinRole(profile.role, item.minRole) : false
+  })
 
   return (
     <aside
@@ -104,9 +120,7 @@ export function Sidebar({ profile }: SidebarProps) {
 
       {/* Nav */}
       <nav className="flex-1 px-2 py-3 space-y-0.5">
-        {navItems
-          .filter((item) => !item.minRole || profile.is_admin || hasMinRole(profile.role, item.minRole))
-          .map((item) => {
+        {navItems.map((item) => {
           const Icon = item.icon
           const active = isActive(item.href)
           return (
@@ -128,7 +142,7 @@ export function Sidebar({ profile }: SidebarProps) {
           )
         })}
 
-        {profile.is_admin && (
+        {visibleAdminItems.length > 0 && (
           <>
             {!collapsed && (
               <p className="px-3 pt-4 pb-1 text-xs font-semibold text-white/40 uppercase tracking-wider">
@@ -136,7 +150,7 @@ export function Sidebar({ profile }: SidebarProps) {
               </p>
             )}
             {collapsed && <div className="my-2 border-t border-white/10" />}
-            {adminItems.map((item) => {
+            {visibleAdminItems.map((item) => {
               const Icon = item.icon
               const active = isActive(item.href)
               return (
