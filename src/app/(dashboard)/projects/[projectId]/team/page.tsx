@@ -2,10 +2,10 @@ import { redirect } from 'next/navigation'
 import { Users } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { canManageAsProjectLead } from '@/lib/utils/permissions'
-import { MemberTable } from '@/components/projects/member-table'
+import { TeamList } from '@/components/projects/team-list'
 import type { ProjectMember, Profile, UserRole } from '@/types'
 
-export default async function MembersSettingsPage({
+export default async function TeamPage({
   params,
 }: {
   params: Promise<{ projectId: string }>
@@ -46,19 +46,20 @@ export default async function MembersSettingsPage({
 
   return (
     <div className="p-6">
-      <div className="flex items-center gap-2 mb-6">
+      <div className="flex items-center gap-2 mb-2">
         <Users className="w-5 h-5 text-[#1e3a5f]" />
-        <h2 className="text-lg font-semibold text-gray-900">Members</h2>
+        <h1 className="text-xl font-bold text-gray-900">Team</h1>
       </div>
+      <p className="text-sm text-gray-500 mb-6">
+        Everyone with access to this project. New team members are added as analysts.
+      </p>
 
-      <div className="bg-white border border-gray-200 rounded-xl p-5">
-        <MemberTable
-          projectId={projectId}
-          initialMembers={(members ?? []) as ProjectMember[]}
-          allUsers={(allUsers ?? []) as Profile[]}
-          canManage={canManage}
-        />
-      </div>
+      <TeamList
+        projectId={projectId}
+        initialMembers={(members ?? []) as ProjectMember[]}
+        allUsers={(allUsers ?? []) as Profile[]}
+        canManage={canManage}
+      />
     </div>
   )
 }

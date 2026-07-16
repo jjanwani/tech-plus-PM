@@ -27,10 +27,10 @@ export function isAdmin(userRole: UserRole): boolean {
   return hasMinRole(userRole, 'president')
 }
 
-// Mirrors the deliverables_manage RLS policy, which gates writes on the
-// caller's role *within the project* (project_members.role), not their
-// global profile role.
-export function canManageDeliverables(
+// Mirrors the deliverables_manage / members_manage RLS policies, which gate
+// writes on the caller's role *within the project* (project_members.role),
+// not their global profile role.
+export function canManageAsProjectLead(
   profile: { role: UserRole; is_admin: boolean },
   projectRole: UserRole | null
 ): boolean {

@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { DeliverableList } from '@/components/deliverables/deliverable-list'
-import { canManageDeliverables } from '@/lib/utils/permissions'
+import { canManageAsProjectLead } from '@/lib/utils/permissions'
 import type { Deliverable, ProjectMember, UserRole } from '@/types'
 
 export default async function DeliverablesPage({
@@ -34,7 +34,7 @@ export default async function DeliverablesPage({
 
   const myMembership = (members ?? []).find((m) => m.user_id === user.id)
   const canManage = profile
-    ? canManageDeliverables(
+    ? canManageAsProjectLead(
         { role: profile.role as UserRole, is_admin: profile.is_admin as boolean },
         (myMembership?.role as UserRole) ?? null
       )
