@@ -1,11 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { createGlobalInviteSchema } from '@/lib/validations/invite'
-import { getResend, FROM_EMAIL, APP_URL } from '@/lib/resend/client'
-import { InviteNotificationEmail } from '@/lib/resend/templates/invite-notification'
-import { ROLE_LABELS } from '@/types'
-import { render } from '@react-email/components'
-import type { UserRole } from '@/types'
 
 async function requireAdmin(supabase: Awaited<ReturnType<typeof getSupabaseServerClient>>) {
   const { data: { user } } = await supabase.auth.getUser()
@@ -87,25 +82,6 @@ export async function POST(request: NextRequest) {
         .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
-
-  const { data: inviterProfile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single()
-
-  try {
-    const html = await render(InviteNotificationEmail({
-      invitedByName: inviterProfile?.full_name ?? 'Someone',
-      projectName: null,
-      roleLabel: data.role ? ROLE_LABELS[data.role as UserRole] : null,
-      isAdmin: Boolean(data.is_admin),
-      loginUrl: `${APP_URL}/auth/login`,
-    }))
-    await getResend().emails.send({
-      from: FROM_EMAIL,
-      to: email,
-      subject: "You've been invited to Tech Plus PM",
-      html,
-    })
-  } catch (e) { console.warn('Resend error:', e) }
-
   return NextResponse.json(data, { status: existingInvite ? 200 : 201 })
 }
 

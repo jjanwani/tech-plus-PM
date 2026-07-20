@@ -223,10 +223,15 @@ export interface AdminFile {
   id: string
   category: AdminFileCategory
   file_name: string
-  file_url: string
+  file_url: string | null
+  file_path: string | null
+  file_size: number | null
+  mime_type: string | null
   uploaded_by: string | null
   created_at: string
   uploader?: Profile
+  // added client-side after generating a signed URL for upload-based files — not a DB column
+  signed_url?: string | null
 }
 
 export type ClientApplicationStatus =

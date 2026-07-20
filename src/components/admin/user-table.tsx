@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Save, CheckCircle, XCircle, UserPlus, Mail, Trash2, X } from 'lucide-react'
+import { Save, CheckCircle, XCircle, UserPlus, Clock, Trash2, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils/cn'
 import { ROLE_LABELS } from '@/types'
@@ -118,7 +118,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
       setInviteEmail('')
       setInviteRole('new_analyst')
       setInviteAdmin(false)
-      toast.success('Invite created — access applies as soon as they sign in')
+      toast.success('User added — activates automatically when they sign in')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to invite')
     } finally {
@@ -132,9 +132,9 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
       const res = await fetch(`/api/admin/pending-invites?id=${invite.id}`, { method: 'DELETE' })
       if (!res.ok) throw new Error()
       setPendingInvites((prev) => prev.filter((i) => i.id !== invite.id))
-      toast.success('Invite canceled')
+      toast.success('Removed')
     } catch {
-      toast.error('Failed to cancel invite')
+      toast.error('Failed to remove')
     } finally {
       setCancelingId(null)
     }
@@ -151,16 +151,16 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
           className="flex items-center gap-2 px-3 py-1.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
         >
           {showInvite ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-          {showInvite ? 'Cancel' : 'Invite User'}
+          {showInvite ? 'Cancel' : 'Add User'}
         </button>
       </div>
 
       {showInvite && (
         <div className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
-          <h4 className="text-sm font-medium text-gray-700">Invite User</h4>
+          <h4 className="text-sm font-medium text-gray-700">Add User</h4>
           <p className="text-xs text-gray-400">
-            Pre-assign a role (and optionally admin access) for someone who hasn&apos;t signed in yet. It applies
-            automatically the first time they log in with their @umich.edu account.
+            Pre-assign a role (and optionally admin access) for someone who hasn&apos;t signed in yet. Their profile
+            is created and activated automatically the first time they log in with their @umich.edu account.
           </p>
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <input
@@ -194,8 +194,8 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
             disabled={!inviteEmail.trim() || inviting}
             className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
           >
-            <Mail className="w-4 h-4" />
-            {inviting ? 'Inviting...' : 'Send Invite'}
+            <UserPlus className="w-4 h-4" />
+            {inviting ? 'Adding...' : 'Add User'}
           </button>
         </div>
       )}
@@ -320,12 +320,12 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
       {pendingInvites.length > 0 && (
         <div className="mt-6">
           <p className="text-sm text-gray-500 mb-2">
-            {pendingInvites.length} pending invite{pendingInvites.length !== 1 ? 's' : ''}
+            {pendingInvites.length} pending — will activate on sign-in
           </p>
           <div className="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
             {pendingInvites.map((invite) => (
               <div key={invite.id} className="flex items-center gap-3 px-4 py-3 bg-amber-50/50">
-                <Mail className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-gray-800 truncate">{invite.email}</p>
                   <p className="text-xs text-gray-400">
@@ -338,7 +338,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
                   onClick={() => handleCancelInvite(invite)}
                   disabled={cancelingId === invite.id}
                   className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
-                  title="Cancel invite"
+                  title="Remove"
                 >
                   <Trash2 className="w-4 h-4" />
                 </button>

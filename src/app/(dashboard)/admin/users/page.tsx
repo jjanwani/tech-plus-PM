@@ -2,7 +2,8 @@ import { redirect } from 'next/navigation'
 import { Shield } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { UserTable } from '@/components/admin/user-table'
-import type { Profile, PendingInvite } from '@/types'
+import { AccessOverview } from '@/components/admin/access-overview'
+import type { Profile, PendingInvite, UserRole } from '@/types'
 
 export default async function AdminUsersPage() {
   const supabase = await getSupabaseServerClient()
@@ -21,13 +22,16 @@ export default async function AdminUsersPage() {
     redirect('/')
   }
 
-  const [{ data: allUsers }, { data: pendingInvites }] = await Promise.all([
+  const [{ data: allUsers }, { data: pendingInvites }, { data: memberships }] = await Promise.all([
     supabase.from('profiles').select('*').order('full_name'),
     supabase
       .from('pending_invites')
       .select('*, inviter:invited_by(id,full_name,avatar_url)')
       .is('project_id', null)
       .order('created_at'),
+    supabase
+      .from('project_members')
+      .select('user_id, role, project:projects(id,key,name)'),
   ])
 
   return (
@@ -43,6 +47,13 @@ export default async function AdminUsersPage() {
       <UserTable
         initialUsers={(allUsers ?? []) as Profile[]}
         initialPendingInvites={(pendingInvites ?? []) as PendingInvite[]}
+      />
+
+      <AccessOverview
+        users={(allUsers ?? []) as Profile[]}
+        memberships={
+          (memberships ?? []) as unknown as { user_id: string; role: UserRole; project: { id: string; key: string; name: string } | null }[]
+        }
       />
     </div>
   )

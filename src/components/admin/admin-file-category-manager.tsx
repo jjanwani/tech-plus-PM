@@ -1,8 +1,9 @@
 'use client'
 
-import { useState } from 'react'
-import { Plus, Trash2, ExternalLink, Link2, X } from 'lucide-react'
+import { useRef, useState } from 'react'
+import { Plus, Trash2, ExternalLink, Link2, Upload, X, FileText } from 'lucide-react'
 import { toast } from 'sonner'
+import { cn } from '@/lib/utils/cn'
 import { formatDate } from '@/lib/utils/date'
 import type { AdminFile, AdminFileCategory } from '@/types'
 
@@ -11,37 +12,56 @@ interface AdminFileCategoryManagerProps {
   initialFiles: AdminFile[]
 }
 
+function formatFileSize(bytes: number | null): string {
+  if (!bytes) return '—'
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
+}
+
 export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCategoryManagerProps) {
   const [files, setFiles] = useState<AdminFile[]>(initialFiles)
   const [showForm, setShowForm] = useState(false)
+  const [mode, setMode] = useState<'link' | 'upload'>('link')
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
+  const [file, setFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!title.trim() || !url.trim()) return
+    if (!title.trim()) return
+    if (mode === 'link' && !url.trim()) return
+    if (mode === 'upload' && !file) return
 
     setSubmitting(true)
     try {
-      const res = await fetch('/api/admin/files', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ category, file_name: title.trim(), file_url: url.trim() }),
-      })
+      const formData = new FormData()
+      formData.append('category', category)
+      formData.append('file_name', title.trim())
+      if (mode === 'link') {
+        formData.append('file_url', url.trim())
+      } else if (file) {
+        formData.append('file', file)
+      }
+
+      const res = await fetch('/api/admin/files', { method: 'POST', body: formData })
       if (!res.ok) {
         const err = await res.json()
-        throw new Error(err.error ?? 'Failed to add link')
+        throw new Error(err.error ?? 'Failed to add document')
       }
       const created = await res.json()
       setFiles((prev) => [created, ...prev])
       setTitle('')
       setUrl('')
+      setFile(null)
+      if (fileInputRef.current) fileInputRef.current.value = ''
       setShowForm(false)
-      toast.success('Link added')
+      toast.success('Document added')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to add link')
+      toast.error(err instanceof Error ? err.message : 'Failed to add document')
     } finally {
       setSubmitting(false)
     }
@@ -53,9 +73,9 @@ export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCa
       const res = await fetch(`/api/admin/files/${fileId}`, { method: 'DELETE' })
       if (!res.ok) throw new Error()
       setFiles((prev) => prev.filter((f) => f.id !== fileId))
-      toast.success('Link removed')
+      toast.success('Document removed')
     } catch {
-      toast.error('Failed to remove link')
+      toast.error('Failed to remove document')
     } finally {
       setDeletingId(null)
     }
@@ -72,12 +92,37 @@ export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCa
           className="flex items-center gap-1.5 px-3 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
         >
           {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {showForm ? 'Cancel' : 'Add Link'}
+          {showForm ? 'Cancel' : 'Add Document'}
         </button>
       </div>
 
       {showForm && (
         <form onSubmit={handleSubmit} className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
+          <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5">
+            <button
+              type="button"
+              onClick={() => setMode('link')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+                mode === 'link' ? 'bg-[#1e3a5f] text-white' : 'text-gray-500 hover:text-gray-700'
+              )}
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              Link
+            </button>
+            <button
+              type="button"
+              onClick={() => setMode('upload')}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
+                mode === 'upload' ? 'bg-[#1e3a5f] text-white' : 'text-gray-500 hover:text-gray-700'
+              )}
+            >
+              <Upload className="w-3.5 h-3.5" />
+              Upload
+            </button>
+          </div>
+
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -85,65 +130,87 @@ export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCa
             required
             className={inputClass}
           />
-          <input
-            type="url"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="Shareable Google Drive link *"
-            required
-            className={inputClass}
-          />
+
+          {mode === 'link' ? (
+            <input
+              type="url"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              placeholder="Shareable Google Drive link *"
+              required
+              className={inputClass}
+            />
+          ) : (
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+              required
+              className={cn(inputClass, 'file:mr-3 file:py-1 file:px-2 file:rounded-md file:border-0 file:bg-gray-100 file:text-gray-600 file:text-xs')}
+            />
+          )}
+
           <button
             type="submit"
-            disabled={!title.trim() || !url.trim() || submitting}
+            disabled={!title.trim() || (mode === 'link' ? !url.trim() : !file) || submitting}
             className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
           >
-            <Link2 className="w-4 h-4" />
-            {submitting ? 'Adding...' : 'Add Link'}
+            {mode === 'link' ? <Link2 className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
+            {submitting ? 'Adding...' : 'Add Document'}
           </button>
         </form>
       )}
 
       {files.length === 0 && (
-        <p className="text-sm text-gray-400 text-center py-12">No links in this folder yet.</p>
+        <p className="text-sm text-gray-400 text-center py-12">No documents in this folder yet.</p>
       )}
 
       <div className="space-y-2">
-        {files.map((file) => (
-          <div
-            key={file.id}
-            className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl"
-          >
-            <Link2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{file.file_name}</p>
-              <p className="text-xs text-gray-400">
-                {formatDate(file.created_at)}
-                {file.uploader?.full_name ? ` · ${file.uploader.full_name}` : ''}
-              </p>
+        {files.map((doc) => {
+          const openUrl = doc.file_path ? doc.signed_url : doc.file_url
+          return (
+            <div
+              key={doc.id}
+              className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl"
+            >
+              {doc.file_path ? (
+                <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              ) : (
+                <Link2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
+              )}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-900 truncate">{doc.file_name}</p>
+                <p className="text-xs text-gray-400">
+                  {doc.file_path ? `${formatFileSize(doc.file_size)} · ` : ''}
+                  {formatDate(doc.created_at)}
+                  {doc.uploader?.full_name ? ` · ${doc.uploader.full_name}` : ''}
+                </p>
+              </div>
+              <div className="flex items-center gap-1 flex-shrink-0">
+                {openUrl && (
+                  <a
+                    href={openUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                    title="Open"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => handleDelete(doc.id)}
+                  disabled={deletingId === doc.id}
+                  className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                  title="Delete"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
-            <div className="flex items-center gap-1 flex-shrink-0">
-              <a
-                href={file.file_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                title="Open link"
-              >
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-              <button
-                type="button"
-                onClick={() => handleDelete(file.id)}
-                disabled={deletingId === file.id}
-                className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
-                title="Delete"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
