@@ -35,6 +35,17 @@ export interface Profile {
   updated_at: string
 }
 
+export interface PendingInvite {
+  id: string
+  email: string
+  project_id: string | null
+  role: UserRole | null
+  is_admin: boolean | null
+  invited_by: string
+  created_at: string
+  inviter?: Profile
+}
+
 export interface Project {
   id: string
   key: string

@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { Shield } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { UserTable } from '@/components/admin/user-table'
-import type { Profile } from '@/types'
+import type { Profile, PendingInvite } from '@/types'
 
 export default async function AdminUsersPage() {
   const supabase = await getSupabaseServerClient()
@@ -21,10 +21,14 @@ export default async function AdminUsersPage() {
     redirect('/')
   }
 
-  const { data: allUsers } = await supabase
-    .from('profiles')
-    .select('*')
-    .order('full_name')
+  const [{ data: allUsers }, { data: pendingInvites }] = await Promise.all([
+    supabase.from('profiles').select('*').order('full_name'),
+    supabase
+      .from('pending_invites')
+      .select('*, inviter:invited_by(id,full_name,avatar_url)')
+      .is('project_id', null)
+      .order('created_at'),
+  ])
 
   return (
     <div className="p-6">
@@ -36,7 +40,10 @@ export default async function AdminUsersPage() {
         Manage all users, roles, and access across Tech Plus Consulting.
       </p>
 
-      <UserTable initialUsers={(allUsers ?? []) as Profile[]} />
+      <UserTable
+        initialUsers={(allUsers ?? []) as Profile[]}
+        initialPendingInvites={(pendingInvites ?? []) as PendingInvite[]}
+      />
     </div>
   )
 }

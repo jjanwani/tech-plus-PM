@@ -6,6 +6,7 @@ const updateUserSchema = z.object({
   id: z.string().uuid(),
   role: z.enum(['new_analyst','senior_analyst','project_manager','consulting_manager','vp_internal','vp_external','vp_operations','president']).optional(),
   is_active: z.boolean().optional(),
+  is_admin: z.boolean().optional(),
 })
 
 export async function GET() {

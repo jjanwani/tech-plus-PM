@@ -3,7 +3,7 @@ import { Users } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { canManageAsProjectLead } from '@/lib/utils/permissions'
 import { TeamList } from '@/components/projects/team-list'
-import type { ProjectMember, Profile, UserRole } from '@/types'
+import type { ProjectMember, Profile, PendingInvite, UserRole } from '@/types'
 
 export default async function TeamPage({
   params,
@@ -16,7 +16,7 @@ export default async function TeamPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, { data: membership }, { data: members }, { data: allUsers }] =
+  const [{ data: profile }, { data: membership }, { data: members }, { data: allUsers }, { data: pendingInvites }] =
     await Promise.all([
       supabase.from('profiles').select('role, is_admin').eq('id', user.id).single(),
       supabase
@@ -35,6 +35,11 @@ export default async function TeamPage({
         .select('*')
         .eq('is_active', true)
         .order('full_name'),
+      supabase
+        .from('pending_invites')
+        .select('*, inviter:invited_by(id,full_name,avatar_url)')
+        .eq('project_id', projectId)
+        .order('created_at'),
     ])
 
   const canManage = profile
@@ -58,6 +63,7 @@ export default async function TeamPage({
         projectId={projectId}
         initialMembers={(members ?? []) as ProjectMember[]}
         allUsers={(allUsers ?? []) as Profile[]}
+        initialPendingInvites={(pendingInvites ?? []) as PendingInvite[]}
         canManage={canManage}
       />
     </div>
