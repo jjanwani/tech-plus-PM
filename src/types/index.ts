@@ -234,6 +234,7 @@ export interface AdminFile {
   file_path: string | null
   file_size: number | null
   mime_type: string | null
+  is_archived: boolean
   uploaded_by: string | null
   created_at: string
   uploader?: Profile

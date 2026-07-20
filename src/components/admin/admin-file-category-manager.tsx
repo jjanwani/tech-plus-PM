@@ -1,7 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
-import { Plus, Trash2, ExternalLink, Link2, Upload, X, FileText } from 'lucide-react'
+import { Plus, Trash2, ExternalLink, Link2, Upload, X, FileText, Archive, ArchiveRestore } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils/cn'
 import { formatDate } from '@/lib/utils/date'
@@ -22,13 +22,18 @@ function formatFileSize(bytes: number | null): string {
 export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCategoryManagerProps) {
   const [files, setFiles] = useState<AdminFile[]>(initialFiles)
   const [showForm, setShowForm] = useState(false)
+  const [showArchived, setShowArchived] = useState(false)
   const [mode, setMode] = useState<'link' | 'upload'>('link')
   const [title, setTitle] = useState('')
   const [url, setUrl] = useState('')
   const [file, setFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [archivingId, setArchivingId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const activeFiles = files.filter((f) => !f.is_archived)
+  const archivedFiles = files.filter((f) => f.is_archived)
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -67,6 +72,25 @@ export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCa
     }
   }
 
+  async function handleToggleArchive(doc: AdminFile) {
+    setArchivingId(doc.id)
+    try {
+      const res = await fetch(`/api/admin/files/${doc.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_archived: !doc.is_archived }),
+      })
+      if (!res.ok) throw new Error()
+      const updated = await res.json()
+      setFiles((prev) => prev.map((f) => (f.id === updated.id ? updated : f)))
+      toast.success(updated.is_archived ? 'Document archived' : 'Document restored')
+    } catch {
+      toast.error('Failed to update document')
+    } finally {
+      setArchivingId(null)
+    }
+  }
+
   async function handleDelete(fileId: string) {
     setDeletingId(fileId)
     try {
@@ -82,6 +106,64 @@ export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCa
   }
 
   const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]'
+
+  function renderDoc(doc: AdminFile) {
+    const openUrl = doc.file_path ? doc.signed_url : doc.file_url
+    return (
+      <div
+        key={doc.id}
+        className={cn(
+          'flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl',
+          doc.is_archived && 'opacity-60'
+        )}
+      >
+        {doc.file_path ? (
+          <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        ) : (
+          <Link2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
+        )}
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900 truncate">{doc.file_name}</p>
+          <p className="text-xs text-gray-400">
+            {doc.file_path ? `${formatFileSize(doc.file_size)} · ` : ''}
+            {formatDate(doc.created_at)}
+            {doc.uploader?.full_name ? ` · ${doc.uploader.full_name}` : ''}
+          </p>
+        </div>
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {openUrl && (
+            <a
+              href={openUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+              title="Open"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+            </a>
+          )}
+          <button
+            type="button"
+            onClick={() => handleToggleArchive(doc)}
+            disabled={archivingId === doc.id}
+            className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+            title={doc.is_archived ? 'Restore' : 'Archive'}
+          >
+            {doc.is_archived ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
+          </button>
+          <button
+            type="button"
+            onClick={() => handleDelete(doc.id)}
+            disabled={deletingId === doc.id}
+            className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+            title="Delete"
+          >
+            <Trash2 className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div>
@@ -161,57 +243,31 @@ export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCa
         </form>
       )}
 
-      {files.length === 0 && (
+      {activeFiles.length === 0 && (
         <p className="text-sm text-gray-400 text-center py-12">No documents in this folder yet.</p>
       )}
 
       <div className="space-y-2">
-        {files.map((doc) => {
-          const openUrl = doc.file_path ? doc.signed_url : doc.file_url
-          return (
-            <div
-              key={doc.id}
-              className="flex items-center gap-3 p-3 bg-white border border-gray-200 rounded-xl"
-            >
-              {doc.file_path ? (
-                <FileText className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              ) : (
-                <Link2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
-              )}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{doc.file_name}</p>
-                <p className="text-xs text-gray-400">
-                  {doc.file_path ? `${formatFileSize(doc.file_size)} · ` : ''}
-                  {formatDate(doc.created_at)}
-                  {doc.uploader?.full_name ? ` · ${doc.uploader.full_name}` : ''}
-                </p>
-              </div>
-              <div className="flex items-center gap-1 flex-shrink-0">
-                {openUrl && (
-                  <a
-                    href={openUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
-                    title="Open"
-                  >
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
-                )}
-                <button
-                  type="button"
-                  onClick={() => handleDelete(doc.id)}
-                  disabled={deletingId === doc.id}
-                  className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
-                  title="Delete"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                </button>
-              </div>
-            </div>
-          )
-        })}
+        {activeFiles.map(renderDoc)}
       </div>
+
+      {archivedFiles.length > 0 && (
+        <div className="mt-6">
+          <button
+            type="button"
+            onClick={() => setShowArchived((v) => !v)}
+            className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 mb-2"
+          >
+            <Archive className="w-3.5 h-3.5" />
+            {showArchived ? 'Hide' : 'Show'} {archivedFiles.length} archived
+          </button>
+          {showArchived && (
+            <div className="space-y-2">
+              {archivedFiles.map(renderDoc)}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   )
 }

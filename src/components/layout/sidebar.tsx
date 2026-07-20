@@ -12,6 +12,7 @@ import {
   Users,
   Briefcase,
   Folder,
+  ListChecks,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -51,6 +52,7 @@ const navItems = [
 const adminItems: AdminNavItem[] = [
   { label: 'Users', href: '/admin/users', icon: Users, adminOnly: true },
   { label: 'Client Applications', href: '/clients', icon: Briefcase, minRole: 'consulting_manager' },
+  { label: 'Assign Deliverable', href: '/admin/deliverables', icon: ListChecks, adminOnly: true },
   ...ADMIN_FILE_CATEGORIES.map((category, i) => ({
     label: ADMIN_FILE_CATEGORY_LABELS[category],
     href: `/admin/files/${category}`,
