@@ -5,11 +5,14 @@ import { Plus, Trash2, ExternalLink, Link2, Upload, X, FileText, Archive, Archiv
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils/cn'
 import { formatDate } from '@/lib/utils/date'
+import { FavoriteButton } from '@/components/dashboard/favorite-button'
 import type { AdminFile, AdminFileCategory } from '@/types'
 
 interface AdminFileCategoryManagerProps {
   category: AdminFileCategory
   initialFiles: AdminFile[]
+  canManage: boolean
+  favoritedIds: string[]
 }
 
 function formatFileSize(bytes: number | null): string {
@@ -19,8 +22,9 @@ function formatFileSize(bytes: number | null): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`
 }
 
-export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCategoryManagerProps) {
+export function AdminFileCategoryManager({ category, initialFiles, canManage, favoritedIds }: AdminFileCategoryManagerProps) {
   const [files, setFiles] = useState<AdminFile[]>(initialFiles)
+  const favoritedSet = new Set(favoritedIds)
   const [showForm, setShowForm] = useState(false)
   const [showArchived, setShowArchived] = useState(false)
   const [mode, setMode] = useState<'link' | 'upload'>('link')
@@ -142,24 +146,29 @@ export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCa
               <ExternalLink className="w-3.5 h-3.5" />
             </a>
           )}
-          <button
-            type="button"
-            onClick={() => handleToggleArchive(doc)}
-            disabled={archivingId === doc.id}
-            className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
-            title={doc.is_archived ? 'Restore' : 'Archive'}
-          >
-            {doc.is_archived ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
-          </button>
-          <button
-            type="button"
-            onClick={() => handleDelete(doc.id)}
-            disabled={deletingId === doc.id}
-            className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
-            title="Delete"
-          >
-            <Trash2 className="w-3.5 h-3.5" />
-          </button>
+          <FavoriteButton itemType="admin_file" itemId={doc.id} initialFavorited={favoritedSet.has(doc.id)} />
+          {canManage && (
+            <>
+              <button
+                type="button"
+                onClick={() => handleToggleArchive(doc)}
+                disabled={archivingId === doc.id}
+                className="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50"
+                title={doc.is_archived ? 'Restore' : 'Archive'}
+              >
+                {doc.is_archived ? <ArchiveRestore className="w-3.5 h-3.5" /> : <Archive className="w-3.5 h-3.5" />}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete(doc.id)}
+                disabled={deletingId === doc.id}
+                className="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                title="Delete"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </>
+          )}
         </div>
       </div>
     )
@@ -167,18 +176,20 @@ export function AdminFileCategoryManager({ category, initialFiles }: AdminFileCa
 
   return (
     <div>
-      <div className="flex items-center justify-end mb-4">
-        <button
-          type="button"
-          onClick={() => setShowForm((v) => !v)}
-          className="flex items-center gap-1.5 px-3 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
-        >
-          {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-          {showForm ? 'Cancel' : 'Add Document'}
-        </button>
-      </div>
+      {canManage && (
+        <div className="flex items-center justify-end mb-4">
+          <button
+            type="button"
+            onClick={() => setShowForm((v) => !v)}
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+          >
+            {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+            {showForm ? 'Cancel' : 'Add Document'}
+          </button>
+        </div>
+      )}
 
-      {showForm && (
+      {showForm && canManage && (
         <form onSubmit={handleSubmit} className="mb-4 p-4 bg-gray-50 border border-gray-200 rounded-xl space-y-3">
           <div className="inline-flex rounded-lg border border-gray-200 bg-white p-0.5">
             <button

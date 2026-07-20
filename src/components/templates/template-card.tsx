@@ -1,10 +1,12 @@
 import { ExternalLink, Calendar } from 'lucide-react'
 import { formatDate } from '@/lib/utils/date'
 import { cn } from '@/lib/utils/cn'
+import { FavoriteButton } from '@/components/dashboard/favorite-button'
 import type { Template } from '@/types'
 
 interface TemplateCardProps {
   template: Template
+  initialFavorited: boolean
 }
 
 const TYPE_STYLES: Record<string, string> = {
@@ -13,22 +15,25 @@ const TYPE_STYLES: Record<string, string> = {
   universal: 'bg-green-100 text-green-700',
 }
 
-export function TemplateCard({ template }: TemplateCardProps) {
+export function TemplateCard({ template, initialFavorited }: TemplateCardProps) {
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4 hover:shadow-md hover:border-gray-300 transition-all flex flex-col gap-3">
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <h3 className="font-semibold text-gray-900 text-sm leading-snug flex-1 min-w-0">{template.name}</h3>
-        {template.project_type && (
-          <span
-            className={cn(
-              'text-xs px-2 py-0.5 rounded-full font-medium flex-shrink-0 capitalize',
-              TYPE_STYLES[template.project_type] ?? 'bg-gray-100 text-gray-600'
-            )}
-          >
-            {template.project_type}
-          </span>
-        )}
+        <div className="flex items-center gap-1 flex-shrink-0">
+          {template.project_type && (
+            <span
+              className={cn(
+                'text-xs px-2 py-0.5 rounded-full font-medium capitalize',
+                TYPE_STYLES[template.project_type] ?? 'bg-gray-100 text-gray-600'
+              )}
+            >
+              {template.project_type}
+            </span>
+          )}
+          <FavoriteButton itemType="template" itemId={template.id} initialFavorited={initialFavorited} />
+        </div>
       </div>
 
       {/* Description */}

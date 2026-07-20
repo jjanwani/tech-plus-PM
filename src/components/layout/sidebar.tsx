@@ -57,7 +57,7 @@ const adminItems: AdminNavItem[] = [
     label: ADMIN_FILE_CATEGORY_LABELS[category],
     href: `/admin/files/${category}`,
     icon: Folder,
-    adminOnly: true,
+    minRole: 'president' as const,
     sectionLabel: i === 0 ? 'Files' : undefined,
     indent: true,
   })),

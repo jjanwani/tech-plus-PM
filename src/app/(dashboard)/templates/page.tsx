@@ -23,17 +23,20 @@ export default async function TemplatesPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, { data: templates }] = await Promise.all([
+  const [{ data: profile }, { data: templates }, { data: favorites }] = await Promise.all([
     supabase.from('profiles').select('role').eq('id', user.id).single(),
     supabase
       .from('templates')
       .select('*, creator:profiles!created_by(id,full_name)')
       .order('name'),
+    supabase.from('favorites').select('item_id').eq('user_id', user.id).eq('item_type', 'template'),
   ])
 
   const canAddTemplate = profile?.role
     ? hasMinRole(profile.role, 'consulting_manager')
     : false
+
+  const favoritedIds = new Set((favorites ?? []).map((f) => f.item_id))
 
   // Group templates
   const grouped: Record<TemplateGroup, Template[]> = {
@@ -70,7 +73,11 @@ export default async function TemplatesPage() {
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
                 {items.map((template) => (
-                  <TemplateCard key={template.id} template={template} />
+                  <TemplateCard
+                    key={template.id}
+                    template={template}
+                    initialFavorited={favoritedIds.has(template.id)}
+                  />
                 ))}
               </div>
             </div>

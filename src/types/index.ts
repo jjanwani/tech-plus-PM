@@ -322,6 +322,25 @@ export interface Template {
   creator?: Profile
 }
 
+export interface ProjectNote {
+  id: string
+  project_id: string
+  user_id: string
+  body: string
+  created_at: string
+  updated_at: string
+}
+
+export type FavoriteItemType = 'template' | 'admin_file'
+
+export interface Favorite {
+  id: string
+  user_id: string
+  item_type: FavoriteItemType
+  item_id: string
+  created_at: string
+}
+
 export interface SprintBurndown {
   snapshot_date: string
   remaining_points: number
