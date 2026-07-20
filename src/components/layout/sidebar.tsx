@@ -19,6 +19,7 @@ import {
 import { cn } from '@/lib/utils/cn'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import { hasMinRole } from '@/lib/utils/permissions'
+import { Logo } from '@/components/layout/logo'
 import { ADMIN_FILE_CATEGORIES, ADMIN_FILE_CATEGORY_LABELS } from '@/types'
 import type { Profile, UserRole } from '@/types'
 
@@ -90,21 +91,10 @@ export function Sidebar({ profile }: SidebarProps) {
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center">
-              <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-            </div>
-            <span className="font-semibold text-sm">Tech Plus PM</span>
-          </div>
-        )}
+        {!collapsed && <Logo variant="light" className="scale-90 origin-left" />}
         {collapsed && (
-          <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mx-auto">
-            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-            </svg>
+          <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mx-auto font-display text-sm text-[#d6a419]">
+            T+
           </div>
         )}
         <button

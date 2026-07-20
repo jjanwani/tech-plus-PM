@@ -33,20 +33,6 @@ export default async function AdminFileCategoryPage({
     .eq('category', typedCategory)
     .order('created_at', { ascending: false })
 
-  const paths = (files ?? []).map((f) => f.file_path)
-  const signedUrlByPath: Record<string, string> = {}
-  if (paths.length > 0) {
-    const { data: signed } = await supabase.storage.from('admin-files').createSignedUrls(paths, 3600)
-    for (const s of signed ?? []) {
-      if (s.path && s.signedUrl) signedUrlByPath[s.path] = s.signedUrl
-    }
-  }
-
-  const filesWithUrls = (files ?? []).map((f) => ({
-    ...f,
-    signed_url: signedUrlByPath[f.file_path] ?? null,
-  }))
-
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-2">
@@ -54,10 +40,10 @@ export default async function AdminFileCategoryPage({
         <h1 className="text-xl font-bold text-gray-900">{ADMIN_FILE_CATEGORY_LABELS[typedCategory]}</h1>
       </div>
       <p className="text-sm text-gray-500 mb-6">
-        Shared internal documents in this folder.
+        Shared links to documents in this folder.
       </p>
 
-      <AdminFileCategoryManager category={typedCategory} initialFiles={filesWithUrls as AdminFile[]} />
+      <AdminFileCategoryManager category={typedCategory} initialFiles={(files ?? []) as AdminFile[]} />
     </div>
   )
 }

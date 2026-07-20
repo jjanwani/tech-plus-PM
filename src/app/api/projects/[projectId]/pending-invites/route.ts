@@ -1,6 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { createProjectInviteSchema } from '@/lib/validations/invite'
+import { getResend, FROM_EMAIL, APP_URL } from '@/lib/resend/client'
+import { InviteNotificationEmail } from '@/lib/resend/templates/invite-notification'
+import { ROLE_LABELS } from '@/types'
+import { render } from '@react-email/components'
+import type { UserRole } from '@/types'
 
 type Params = { params: Promise<{ projectId: string }> }
 
@@ -55,6 +60,28 @@ export async function POST(request: NextRequest, { params }: Params) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  const [{ data: inviterProfile }, { data: project }] = await Promise.all([
+    supabase.from('profiles').select('full_name').eq('id', user.id).single(),
+    supabase.from('projects').select('name').eq('id', projectId).single(),
+  ])
+
+  try {
+    const html = await render(InviteNotificationEmail({
+      invitedByName: inviterProfile?.full_name ?? 'Someone',
+      projectName: project?.name ?? null,
+      roleLabel: data.role ? ROLE_LABELS[data.role as UserRole] : null,
+      isAdmin: false,
+      loginUrl: `${APP_URL}/auth/login`,
+    }))
+    await getResend().emails.send({
+      from: FROM_EMAIL,
+      to: email,
+      subject: `You've been invited to ${project?.name ?? 'Tech Plus PM'}`,
+      html,
+    })
+  } catch (e) { console.warn('Resend error:', e) }
+
   return NextResponse.json(data, { status: 201 })
 }
 

@@ -1,4 +1,5 @@
 import { LoginButton } from '@/components/auth/login-button'
+import { Logo } from '@/components/layout/logo'
 
 export default function LoginPage() {
   return (
@@ -7,23 +8,9 @@ export default function LoginPage() {
         <div className="bg-white rounded-2xl shadow-2xl p-8">
           {/* Logo / Branding */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[#1e3a5f] mb-4">
-              <svg
-                className="w-9 h-9 text-white"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
-                />
-              </svg>
+            <div className="flex justify-center mb-3">
+              <Logo variant="dark" className="items-center text-center" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900">Tech Plus PM</h1>
             <p className="text-sm text-gray-500 mt-1">Tech Plus Consulting · University of Michigan</p>
           </div>
 
