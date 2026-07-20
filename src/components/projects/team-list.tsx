@@ -29,6 +29,10 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedUserId, setSelectedUserId] = useState('')
   const [role, setRole] = useState<UserRole>('new_analyst')
+  const [fullName, setFullName] = useState('')
+  const [phoneNumber, setPhoneNumber] = useState('')
+  const [gradYear, setGradYear] = useState('')
+  const [college, setCollege] = useState('')
   const [savingId, setSavingId] = useState<string | null>(null)
 
   const existingUserIds = new Set(members.map((m) => m.user_id))
@@ -44,6 +48,15 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
     EMAIL_RE.test(trimmedQuery) &&
     availableUsers.length === 0 &&
     !invitedEmails.has(trimmedQuery)
+
+  function resetForm() {
+    setSearchQuery('')
+    setSelectedUserId('')
+    setFullName('')
+    setPhoneNumber('')
+    setGradYear('')
+    setCollege('')
+  }
 
   async function handleAdd() {
     if (!selectedUserId) return
@@ -61,8 +74,7 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
       const newMember = await res.json()
       setMembers((prev) => [...prev, newMember])
       setAddingMember(false)
-      setSearchQuery('')
-      setSelectedUserId('')
+      resetForm()
       toast.success('Team member added')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to add team member')
@@ -78,7 +90,14 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
       const res = await fetch(`/api/projects/${projectId}/pending-invites`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: trimmedQuery, role }),
+        body: JSON.stringify({
+          email: trimmedQuery,
+          role,
+          full_name: fullName || undefined,
+          phone_number: phoneNumber || undefined,
+          grad_year: gradYear ? Number(gradYear) : undefined,
+          college: college || undefined,
+        }),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -87,7 +106,7 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
       const invite = await res.json()
       setPendingInvites((prev) => [...prev, invite])
       setAddingMember(false)
-      setSearchQuery('')
+      resetForm()
       toast.success('Added — access activates automatically when they sign in')
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Failed to add')
@@ -127,6 +146,8 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
     }
   }
 
+  const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]'
+
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
@@ -155,7 +176,7 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setSelectedUserId('') }}
                 placeholder="Search users or enter an email..."
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                className={inputClass}
               />
               {searchQuery && availableUsers.length > 0 && (
                 <div className="mt-1 border border-gray-200 rounded-lg bg-white shadow-sm max-h-40 overflow-y-auto">
@@ -184,13 +205,44 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
             <select
               value={role}
               onChange={(e) => setRole(e.target.value as UserRole)}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white"
+              className={cn(inputClass, 'bg-white')}
             >
               {TEAM_ROLES.map((r) => (
                 <option key={r} value={r}>{ROLE_LABELS[r]}</option>
               ))}
             </select>
           </div>
+
+          {canAddByEmail && (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Name"
+                className={inputClass}
+              />
+              <input
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="Phone"
+                className={inputClass}
+              />
+              <input
+                value={gradYear}
+                onChange={(e) => setGradYear(e.target.value.replace(/\D/g, ''))}
+                placeholder="Grad Year"
+                inputMode="numeric"
+                className={inputClass}
+              />
+              <input
+                value={college}
+                onChange={(e) => setCollege(e.target.value)}
+                placeholder="School"
+                className={inputClass}
+              />
+            </div>
+          )}
+
           <div className="flex items-center gap-2">
             {canAddByEmail ? (
               <button
@@ -215,20 +267,23 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
         </div>
       )}
 
-      <div className="border border-gray-200 rounded-xl overflow-hidden">
+      <div className="border border-gray-200 rounded-xl overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-gray-50 border-b border-gray-200">
             <tr>
-              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Member</th>
-              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Email</th>
-              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide">Role</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide whitespace-nowrap">Name</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide whitespace-nowrap">Role</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide whitespace-nowrap">Email</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide whitespace-nowrap">Phone</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide whitespace-nowrap">Grad Year</th>
+              <th className="text-left px-4 py-3 font-semibold text-gray-600 text-xs uppercase tracking-wide whitespace-nowrap">School</th>
               {canManage && <th className="px-4 py-3 w-12" />}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {members.length === 0 && (
               <tr>
-                <td colSpan={canManage ? 4 : 3} className="px-4 py-6 text-center text-gray-400 text-sm">
+                <td colSpan={canManage ? 7 : 6} className="px-4 py-6 text-center text-gray-400 text-sm">
                   No team members yet.
                 </td>
               </tr>
@@ -247,11 +302,14 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
                           {profile ? getInitials(profile.full_name) : '?'}
                         </div>
                       )}
-                      <span className="font-medium text-gray-800">{profile?.full_name ?? '—'}</span>
+                      <span className="font-medium text-gray-800 whitespace-nowrap">{profile?.full_name ?? '—'}</span>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-gray-500">{profile?.email ?? '—'}</td>
-                  <td className="px-4 py-3 text-gray-700">{ROLE_LABELS[member.role]}</td>
+                  <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{ROLE_LABELS[member.role]}</td>
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{profile?.email ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{profile?.phone_number ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{profile?.grad_year ?? '—'}</td>
+                  <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{profile?.college ?? '—'}</td>
                   {canManage && (
                     <td className="px-4 py-3">
                       <button
@@ -276,26 +334,38 @@ export function TeamList({ projectId, initialMembers, allUsers, initialPendingIn
           <p className="text-sm text-gray-500 mb-2">
             {pendingInvites.length} pending — will activate on sign-in
           </p>
-          <div className="border border-gray-200 rounded-xl overflow-hidden divide-y divide-gray-100">
-            {pendingInvites.map((invite) => (
-              <div key={invite.id} className="flex items-center gap-3 px-4 py-3 bg-amber-50/50">
-                <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-gray-800 truncate">{invite.email}</p>
-                  <p className="text-xs text-gray-400">Awaiting sign-in · {ROLE_LABELS[invite.role ?? 'new_analyst']}</p>
-                </div>
-                {canManage && (
-                  <button
-                    onClick={() => handleCancelPending(invite)}
-                    disabled={savingId === invite.id}
-                    className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
-                    title="Remove"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            ))}
+          <div className="border border-gray-200 rounded-xl overflow-x-auto">
+            <table className="w-full text-sm">
+              <tbody className="divide-y divide-gray-100">
+                {pendingInvites.map((invite) => (
+                  <tr key={invite.id} className="bg-amber-50/50">
+                    <td className="px-4 py-3 w-8">
+                      <Clock className="w-4 h-4 text-amber-500 flex-shrink-0" />
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      <p className="text-sm font-medium text-gray-800">{invite.full_name || '—'}</p>
+                    </td>
+                    <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{ROLE_LABELS[invite.role ?? 'new_analyst']}</td>
+                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{invite.email}</td>
+                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{invite.phone_number ?? '—'}</td>
+                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{invite.grad_year ?? '—'}</td>
+                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{invite.college ?? '—'}</td>
+                    {canManage && (
+                      <td className="px-4 py-3">
+                        <button
+                          onClick={() => handleCancelPending(invite)}
+                          disabled={savingId === invite.id}
+                          className="p-1.5 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
+                          title="Remove"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}

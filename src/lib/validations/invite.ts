@@ -12,8 +12,12 @@ const ROLES = [
 ] as const
 
 export const createProjectInviteSchema = z.object({
-  email: z.string().email(),
-  role:  z.enum(ROLES).optional(),
+  email:        z.string().email(),
+  role:         z.enum(ROLES).optional(),
+  full_name:    z.string().optional(),
+  phone_number: z.string().optional(),
+  grad_year:    z.number().int().min(2000).max(2100).optional(),
+  college:      z.string().optional(),
 })
 
 export const createGlobalInviteSchema = z.object({

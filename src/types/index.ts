@@ -31,6 +31,9 @@ export interface Profile {
   role: UserRole
   is_admin: boolean
   is_active: boolean
+  phone_number: string | null
+  grad_year: number | null
+  college: string | null
   created_at: string
   updated_at: string
 }
@@ -41,6 +44,10 @@ export interface PendingInvite {
   project_id: string | null
   role: UserRole | null
   is_admin: boolean | null
+  full_name: string | null
+  phone_number: string | null
+  grad_year: number | null
+  college: string | null
   invited_by: string
   created_at: string
   inviter?: Profile

@@ -27,7 +27,7 @@ export default async function TeamPage({
         .maybeSingle(),
       supabase
         .from('project_members')
-        .select('*, profile:profiles(id,full_name,avatar_url,email,role,is_admin,is_active,created_at,updated_at)')
+        .select('*, profile:profiles(id,full_name,avatar_url,email,role,is_admin,is_active,phone_number,grad_year,college,created_at,updated_at)')
         .eq('project_id', projectId)
         .order('joined_at'),
       supabase

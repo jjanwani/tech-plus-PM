@@ -48,7 +48,16 @@ export async function POST(request: NextRequest, { params }: Params) {
   const { data, error } = await supabase
     .from('pending_invites')
     .upsert(
-      { email, project_id: projectId, role: parsed.data.role ?? 'new_analyst', invited_by: user.id },
+      {
+        email,
+        project_id: projectId,
+        role: parsed.data.role ?? 'new_analyst',
+        full_name: parsed.data.full_name || null,
+        phone_number: parsed.data.phone_number || null,
+        grad_year: parsed.data.grad_year ?? null,
+        college: parsed.data.college || null,
+        invited_by: user.id,
+      },
       { onConflict: 'email,project_id' }
     )
     .select('*, inviter:invited_by(id,full_name,avatar_url)')
