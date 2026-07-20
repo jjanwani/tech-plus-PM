@@ -11,7 +11,7 @@ import {
   Bell,
   Users,
   Briefcase,
-  FolderOpen,
+  Folder,
   ChevronLeft,
   ChevronRight,
   LogOut,
@@ -19,6 +19,7 @@ import {
 import { cn } from '@/lib/utils/cn'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import { hasMinRole } from '@/lib/utils/permissions'
+import { ADMIN_FILE_CATEGORIES, ADMIN_FILE_CATEGORY_LABELS } from '@/types'
 import type { Profile, UserRole } from '@/types'
 
 interface SidebarProps {
@@ -31,6 +32,8 @@ interface AdminNavItem {
   icon: typeof Users
   adminOnly?: boolean
   minRole?: UserRole
+  sectionLabel?: string
+  indent?: boolean
 }
 
 const navItems = [
@@ -42,11 +45,19 @@ const navItems = [
 ]
 
 // adminOnly items require profile.is_admin; minRole items are visible to
-// admins or anyone meeting that role threshold.
+// admins or anyone meeting that role threshold. Each Admin Files folder is
+// its own page/nav entry, grouped under a 'Files' sub-label.
 const adminItems: AdminNavItem[] = [
   { label: 'Users', href: '/admin/users', icon: Users, adminOnly: true },
   { label: 'Client Applications', href: '/clients', icon: Briefcase, minRole: 'consulting_manager' },
-  { label: 'Files', href: '/admin/files', icon: FolderOpen, adminOnly: true },
+  ...ADMIN_FILE_CATEGORIES.map((category, i) => ({
+    label: ADMIN_FILE_CATEGORY_LABELS[category],
+    href: `/admin/files/${category}`,
+    icon: Folder,
+    adminOnly: true,
+    sectionLabel: i === 0 ? 'Files' : undefined,
+    indent: true,
+  })),
 ]
 
 export function Sidebar({ profile }: SidebarProps) {
@@ -154,21 +165,27 @@ export function Sidebar({ profile }: SidebarProps) {
               const Icon = item.icon
               const active = isActive(item.href)
               return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
-                    active
-                      ? 'bg-white/15 text-white font-medium'
-                      : 'text-white/70 hover:bg-white/10 hover:text-white',
-                    collapsed && 'justify-center px-2'
+                <div key={item.href}>
+                  {!collapsed && item.sectionLabel && (
+                    <p className="px-3 pt-2 pb-1 text-[10px] font-semibold text-white/30 uppercase tracking-wider">
+                      {item.sectionLabel}
+                    </p>
                   )}
-                  title={collapsed ? item.label : undefined}
-                >
-                  <Icon className="w-4 h-4 flex-shrink-0" />
-                  {!collapsed && <span>{item.label}</span>}
-                </Link>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors',
+                      active
+                        ? 'bg-white/15 text-white font-medium'
+                        : 'text-white/70 hover:bg-white/10 hover:text-white',
+                      collapsed ? 'justify-center px-2' : item.indent && 'pl-5'
+                    )}
+                    title={collapsed ? item.label : undefined}
+                  >
+                    <Icon className="w-4 h-4 flex-shrink-0" />
+                    {!collapsed && <span>{item.label}</span>}
+                  </Link>
+                </div>
               )
             })}
           </>
