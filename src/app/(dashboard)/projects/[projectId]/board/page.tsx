@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { KanbanBoard } from '@/components/board/kanban-board'
-import type { Issue, IssueStatus, Profile, Label } from '@/types'
+import type { Issue, IssueStatus, Profile, Label, ProjectMember, Sprint } from '@/types'
 
 export default async function BoardPage({
   params,
@@ -13,7 +13,7 @@ export default async function BoardPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: statuses }, { data: issues }, { data: members }, { data: labels }] =
+  const [{ data: statuses }, { data: issues }, { data: members }, { data: labels }, { data: sprints }] =
     await Promise.all([
       supabase
         .from('issue_statuses')
@@ -28,12 +28,17 @@ export default async function BoardPage({
         .order('position'),
       supabase
         .from('project_members')
-        .select('profile:profiles(id, full_name, avatar_url, email, role, is_admin, is_active, created_at, updated_at)')
+        .select('id, project_id, user_id, role, joined_at, profile:profiles(id, full_name, avatar_url, email, role, is_admin, is_active, created_at, updated_at)')
         .eq('project_id', projectId),
       supabase
         .from('labels')
         .select('*')
         .eq('project_id', projectId),
+      supabase
+        .from('sprints')
+        .select('*')
+        .eq('project_id', projectId)
+        .order('created_at', { ascending: false }),
     ])
 
   // Normalize issues - flatten labels
@@ -46,8 +51,9 @@ export default async function BoardPage({
     },
   }))
 
-  const memberProfiles = (members ?? [])
-    .map((m: { profile: unknown }) => m.profile as Profile)
+  const projectMembers = (members ?? []) as unknown as ProjectMember[]
+  const memberProfiles = projectMembers
+    .map((m) => m.profile as Profile)
     .filter(Boolean)
 
   return (
@@ -57,6 +63,8 @@ export default async function BoardPage({
         initialStatuses={(statuses ?? []) as IssueStatus[]}
         initialIssues={normalizedIssues}
         members={memberProfiles}
+        projectMembers={projectMembers}
+        sprints={(sprints ?? []) as Sprint[]}
         labels={(labels ?? []) as Label[]}
       />
     </div>

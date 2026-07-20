@@ -22,7 +22,7 @@ export default async function AdminUsersPage() {
     redirect('/')
   }
 
-  const [{ data: allUsers }, { data: pendingInvites }, { data: memberships }] = await Promise.all([
+  const [{ data: allUsers }, { data: pendingInvites }, { data: memberships }, { data: allProjects }] = await Promise.all([
     supabase.from('profiles').select('*').order('full_name'),
     supabase
       .from('pending_invites')
@@ -32,6 +32,11 @@ export default async function AdminUsersPage() {
     supabase
       .from('project_members')
       .select('user_id, role, project:projects(id,key,name)'),
+    supabase
+      .from('projects')
+      .select('id, key, name')
+      .eq('is_archived', false)
+      .order('name'),
   ])
 
   return (
@@ -54,6 +59,7 @@ export default async function AdminUsersPage() {
         memberships={
           (memberships ?? []) as unknown as { user_id: string; role: UserRole; project: { id: string; key: string; name: string } | null }[]
         }
+        projects={(allProjects ?? []) as { id: string; key: string; name: string }[]}
       />
     </div>
   )

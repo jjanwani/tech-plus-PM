@@ -3,13 +3,17 @@ import { AlertTriangle, Bell, FolderKanban } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { PriorityBadge } from '@/components/issues/priority-badge'
 import { ProjectNoteBox } from '@/components/dashboard/project-note-box'
+import { OrgRoadmapPanel } from '@/components/dashboard/org-roadmap-panel'
 import { cn } from '@/lib/utils/cn'
 import { isOverdue } from '@/lib/utils/date'
-import type { Issue } from '@/types'
+import type { Issue, RoadmapCheckpoint, UserRole } from '@/types'
+
+const ORG_ROADMAP_ROLES: UserRole[] = ['vp_internal', 'vp_external', 'vp_operations']
 
 interface ManagerDashboardProps {
   userId: string
   fullName: string
+  role: UserRole
 }
 
 interface ProjectSummary {
@@ -20,13 +24,22 @@ interface ProjectSummary {
   is_archived: boolean
 }
 
-export async function ManagerDashboard({ userId, fullName }: ManagerDashboardProps) {
+export async function ManagerDashboard({ userId, fullName, role }: ManagerDashboardProps) {
   const supabase = await getSupabaseServerClient()
+  const canManageOrgRoadmap = ORG_ROADMAP_ROLES.includes(role)
 
-  const { data: membershipsRaw } = await supabase
-    .from('project_members')
-    .select('project_id, project:projects(id,key,name,type,is_archived)')
-    .eq('user_id', userId)
+  const [{ data: membershipsRaw }, { data: internalCheckpointsRaw }, { data: externalCheckpointsRaw }] = await Promise.all([
+    supabase
+      .from('project_members')
+      .select('project_id, project:projects(id,key,name,type,is_archived)')
+      .eq('user_id', userId),
+    canManageOrgRoadmap
+      ? supabase.from('roadmap_checkpoints').select('*').is('project_id', null).eq('scope', 'internal').order('checkpoint_date')
+      : Promise.resolve({ data: [] }),
+    canManageOrgRoadmap
+      ? supabase.from('roadmap_checkpoints').select('*').is('project_id', null).eq('scope', 'external').order('checkpoint_date')
+      : Promise.resolve({ data: [] }),
+  ])
 
   const memberships = (membershipsRaw ?? []) as unknown as Array<{ project_id: string; project: ProjectSummary | null }>
   const projects = memberships
@@ -99,6 +112,13 @@ export async function ManagerDashboard({ userId, fullName }: ManagerDashboardPro
         <h1 className="text-2xl font-bold text-gray-900">Welcome back, {fullName.split(' ')[0]}</h1>
         <p className="text-gray-500 mt-1">Your projects, at a glance.</p>
       </div>
+
+      {canManageOrgRoadmap && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-6">
+          <OrgRoadmapPanel scope="internal" initialCheckpoints={(internalCheckpointsRaw ?? []) as RoadmapCheckpoint[]} />
+          <OrgRoadmapPanel scope="external" initialCheckpoints={(externalCheckpointsRaw ?? []) as RoadmapCheckpoint[]} />
+        </div>
+      )}
 
       {projects.length === 0 && (
         <div className="bg-white border border-gray-200 rounded-xl p-12 text-center">

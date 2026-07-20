@@ -3,8 +3,9 @@ import { AlertOctagon, Star, CalendarDays, FileText, Link2 } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { formatDate, isDueSoon } from '@/lib/utils/date'
 import { PriorityBadge } from '@/components/issues/priority-badge'
+import { OrgRoadmapPanel } from '@/components/dashboard/org-roadmap-panel'
 import { ADMIN_FILE_CATEGORY_LABELS } from '@/types'
-import type { AdminFileCategory, IssuePriority } from '@/types'
+import type { AdminFileCategory, IssuePriority, RoadmapCheckpoint } from '@/types'
 
 interface PresidentDashboardProps {
   userId: string
@@ -24,6 +25,8 @@ export async function PresidentDashboard({ userId, fullName }: PresidentDashboar
     { data: favoriteRows },
     { data: sprintsRaw },
     { data: deliverablesRaw },
+    { data: internalCheckpointsRaw },
+    { data: externalCheckpointsRaw },
   ] = await Promise.all([
     supabase
       .from('issues')
@@ -43,6 +46,8 @@ export async function PresidentDashboard({ userId, fullName }: PresidentDashboar
       .select('id, title, due_date, project_id, project:projects(id,key,name)')
       .eq('is_complete', false)
       .not('due_date', 'is', null),
+    supabase.from('roadmap_checkpoints').select('*').is('project_id', null).eq('scope', 'internal').order('checkpoint_date'),
+    supabase.from('roadmap_checkpoints').select('*').is('project_id', null).eq('scope', 'external').order('checkpoint_date'),
   ])
 
   const highPriorityIssues = (highPriorityIssuesRaw ?? []) as unknown as Array<{
@@ -93,6 +98,11 @@ export async function PresidentDashboard({ userId, fullName }: PresidentDashboar
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Welcome back, {fullName.split(' ')[0]}</h1>
         <p className="text-gray-500 mt-1">Organization-wide overview.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+        <OrgRoadmapPanel scope="internal" initialCheckpoints={(internalCheckpointsRaw ?? []) as RoadmapCheckpoint[]} />
+        <OrgRoadmapPanel scope="external" initialCheckpoints={(externalCheckpointsRaw ?? []) as RoadmapCheckpoint[]} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">

@@ -308,6 +308,19 @@ export interface Deliverable {
   responsible?: Profile
 }
 
+export interface RoadmapCheckpoint {
+  id: string
+  project_id: string | null
+  scope: ProjectType | null
+  title: string
+  description: string | null
+  checkpoint_date: string
+  created_by: string
+  created_at: string
+  updated_at: string
+  creator?: Profile
+}
+
 export interface Template {
   id: string
   name: string

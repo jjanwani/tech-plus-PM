@@ -13,10 +13,8 @@ const tabs = [
   { label: 'Board', href: '/board' },
   { label: 'Backlog', href: '/backlog' },
   { label: 'Roadmap', href: '/roadmap' },
-  { label: 'Sprints', href: '/sprints' },
   { label: 'Deliverables', href: '/deliverables' },
   { label: 'Team', href: '/team' },
-  { label: 'Reports', href: '/reports' },
   { label: 'Settings', href: '/settings' },
 ]
 

@@ -16,13 +16,16 @@ import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 import { KanbanColumn } from './kanban-column'
 import { IssueCard } from './issue-card'
 import { BoardFiltersBar, type BoardFilters } from './board-filters'
-import type { Issue, IssueStatus, Profile, Label } from '@/types'
+import { IssueDialog } from '@/components/issues/issue-dialog'
+import type { Issue, IssueStatus, Profile, Label, ProjectMember, Sprint } from '@/types'
 
 interface KanbanBoardProps {
   projectId: string
   initialStatuses: IssueStatus[]
   initialIssues: Issue[]
   members: Profile[]
+  projectMembers: ProjectMember[]
+  sprints: Sprint[]
   labels: Label[]
 }
 
@@ -31,10 +34,13 @@ export function KanbanBoard({
   initialStatuses,
   initialIssues,
   members,
+  projectMembers,
+  sprints,
   labels,
 }: KanbanBoardProps) {
   const [issues, setIssues] = useState<Issue[]>(initialIssues)
   const [activeIssue, setActiveIssue] = useState<Issue | null>(null)
+  const [addIssueStatusId, setAddIssueStatusId] = useState<string | null>(null)
   const [filters, setFilters] = useState<BoardFilters>({
     assigneeIds: [],
     priorities: [],
@@ -178,6 +184,7 @@ export function KanbanBoard({
                 status={status}
                 issues={getIssuesForStatus(status.id)}
                 projectId={projectId}
+                onAddIssue={setAddIssueStatusId}
               />
             ))}
           </div>
@@ -188,6 +195,19 @@ export function KanbanBoard({
           </DragOverlay>
         </DndContext>
       </div>
+
+      {addIssueStatusId && (
+        <IssueDialog
+          projectId={projectId}
+          statuses={initialStatuses}
+          members={projectMembers}
+          sprints={sprints}
+          labels={labels}
+          defaultValues={{ status_id: addIssueStatusId }}
+          onClose={() => setAddIssueStatusId(null)}
+          onCreated={(issue) => setIssues((prev) => [...prev, issue])}
+        />
+      )}
     </div>
   )
 }

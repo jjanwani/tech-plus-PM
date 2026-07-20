@@ -28,7 +28,7 @@ export default async function DashboardHomePage() {
   }
 
   if (MANAGER_ROLES.includes(role)) {
-    return <ManagerDashboard userId={user.id} fullName={fullName} />
+    return <ManagerDashboard userId={user.id} fullName={fullName} role={role} />
   }
 
   return <AnalystDashboard userId={user.id} fullName={fullName} />
