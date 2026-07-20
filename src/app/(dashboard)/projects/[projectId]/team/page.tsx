@@ -16,31 +16,39 @@ export default async function TeamPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: profile }, { data: membership }, { data: members }, { data: allUsers }, { data: pendingInvites }] =
-    await Promise.all([
-      supabase.from('profiles').select('role, is_admin').eq('id', user.id).single(),
-      supabase
-        .from('project_members')
-        .select('role')
-        .eq('project_id', projectId)
-        .eq('user_id', user.id)
-        .maybeSingle(),
-      supabase
-        .from('project_members')
-        .select('*, profile:profiles(id,full_name,avatar_url,email,role,is_admin,is_active,phone_number,grad_year,college,created_at,updated_at)')
-        .eq('project_id', projectId)
-        .order('joined_at'),
-      supabase
-        .from('profiles')
-        .select('*')
-        .eq('is_active', true)
-        .order('full_name'),
-      supabase
-        .from('pending_invites')
-        .select('*, inviter:invited_by(id,full_name,avatar_url)')
-        .eq('project_id', projectId)
-        .order('created_at'),
-    ])
+  const [
+    { data: profile },
+    { data: membership },
+    { data: members, error: membersError },
+    { data: allUsers },
+    { data: pendingInvites, error: pendingError },
+  ] = await Promise.all([
+    supabase.from('profiles').select('role, is_admin').eq('id', user.id).single(),
+    supabase
+      .from('project_members')
+      .select('role')
+      .eq('project_id', projectId)
+      .eq('user_id', user.id)
+      .maybeSingle(),
+    supabase
+      .from('project_members')
+      .select('*, profile:profiles(id,full_name,avatar_url,email,role,is_admin,is_active,phone_number,grad_year,college,created_at,updated_at)')
+      .eq('project_id', projectId)
+      .order('joined_at'),
+    supabase
+      .from('profiles')
+      .select('*')
+      .eq('is_active', true)
+      .order('full_name'),
+    supabase
+      .from('pending_invites')
+      .select('*, inviter:invited_by(id,full_name,avatar_url)')
+      .eq('project_id', projectId)
+      .order('created_at'),
+  ])
+
+  if (membersError) console.error('Team page: failed to load project_members:', membersError)
+  if (pendingError) console.error('Team page: failed to load pending_invites:', pendingError)
 
   const canManage = profile
     ? canManageAsProjectLead(
