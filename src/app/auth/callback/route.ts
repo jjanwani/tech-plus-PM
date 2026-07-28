@@ -16,12 +16,13 @@ export async function GET(request: NextRequest) {
 
     if (error) {
       console.error('Auth callback error:', error)
-      return NextResponse.redirect(`${origin}/auth/error`)
+      return NextResponse.redirect(`${origin}/auth/error?message=${encodeURIComponent(error.message)}`)
     }
 
     return NextResponse.redirect(`${origin}/`)
   } catch (err) {
     console.error('Auth callback exception:', err)
-    return NextResponse.redirect(`${origin}/auth/error`)
+    const message = err instanceof Error ? err.message : 'Unknown error'
+    return NextResponse.redirect(`${origin}/auth/error?message=${encodeURIComponent(message)}`)
   }
 }

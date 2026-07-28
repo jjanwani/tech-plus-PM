@@ -1,6 +1,12 @@
 import Link from 'next/link'
 
-export default function AuthErrorPage() {
+export default async function AuthErrorPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ message?: string }>
+}) {
+  const { message } = await searchParams
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8e] px-4">
       <div className="w-full max-w-md">
@@ -22,11 +28,16 @@ export default function AuthErrorPage() {
             </svg>
           </div>
           <h1 className="text-xl font-bold text-gray-900 mb-2">Authentication Failed</h1>
-          <p className="text-gray-600 mb-6">
-            Authentication failed. Please use your{' '}
+          <p className="text-gray-600 mb-2">
+            Please use your{' '}
             <span className="font-semibold text-[#1e3a5f]">@umich.edu</span> Google account to sign in.
             Personal Gmail accounts are not permitted.
           </p>
+          {message && (
+            <p className="text-xs text-gray-400 mb-4 font-mono break-words">
+              {message}
+            </p>
+          )}
           <Link
             href="/auth/login"
             className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg bg-[#1e3a5f] text-white font-medium hover:bg-[#2d5a8e] transition-colors"
