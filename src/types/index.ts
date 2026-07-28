@@ -326,8 +326,8 @@ export interface Template {
   name: string
   description: string | null
   project_type: ProjectType | null
-  file_path: string
-  file_name: string
+  file_path: string | null
+  file_name: string | null
   file_url: string
   created_by: string | null
   created_at: string
