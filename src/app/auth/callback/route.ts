@@ -7,7 +7,13 @@ export async function GET(request: NextRequest) {
   const origin = request.nextUrl.origin
 
   if (!code) {
-    return NextResponse.redirect(`${origin}/auth/error`)
+    const oauthError = searchParams.get('error')
+    const oauthErrorDescription = searchParams.get('error_description')
+    console.error('Auth callback missing code:', { oauthError, oauthErrorDescription, url: request.nextUrl.toString() })
+    const message = oauthErrorDescription || oauthError
+    return NextResponse.redirect(
+      message ? `${origin}/auth/error?message=${encodeURIComponent(message)}` : `${origin}/auth/error`
+    )
   }
 
   try {
