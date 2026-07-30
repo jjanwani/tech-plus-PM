@@ -11,9 +11,8 @@ interface ProjectNavProps {
 const tabs = [
   { label: 'Overview', href: '' },
   { label: 'Board', href: '/board' },
-  { label: 'Backlog', href: '/backlog' },
   { label: 'Roadmap', href: '/roadmap' },
-  { label: 'Deliverables', href: '/deliverables' },
+  { label: 'Files', href: '/files' },
   { label: 'Team', href: '/team' },
   { label: 'Settings', href: '/settings' },
 ]
@@ -39,7 +38,7 @@ export function ProjectNav({ projectId }: ProjectNavProps) {
           className={cn(
             'px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors',
             isActive(tab.href)
-              ? 'border-[#1e3a5f] text-[#1e3a5f]'
+              ? 'border-[#00274c] text-[#00274c]'
               : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
           )}
         >

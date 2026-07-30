@@ -27,7 +27,7 @@ export default async function ProjectSettingsPage({
   return (
     <div className="p-6 max-w-2xl">
       <div className="flex items-center gap-2 mb-6">
-        <Settings className="w-5 h-5 text-[#1e3a5f]" />
+        <Settings className="w-5 h-5 text-[#00274c]" />
         <h2 className="text-lg font-semibold text-gray-900">Project Settings</h2>
       </div>
 

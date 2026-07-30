@@ -30,7 +30,7 @@ export function TopNav({ profile }: TopNavProps) {
   }
 
   return (
-    <header className="flex items-center gap-4 px-6 py-3 bg-white border-b border-gray-200 flex-shrink-0">
+    <header className="flex items-center gap-4 px-6 py-3 bg-white border-b border-gray-200 border-t-2 border-t-[#f1c100] flex-shrink-0">
       {/* Search */}
       <form onSubmit={handleSearch} className="flex-1 max-w-md">
         <div className="relative">
@@ -40,7 +40,7 @@ export function TopNav({ profile }: TopNavProps) {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search issues..."
-            className="w-full pl-9 pr-4 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] transition-colors"
+            className="w-full pl-9 pr-4 py-1.5 text-sm bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] transition-colors"
           />
         </div>
       </form>
@@ -52,7 +52,7 @@ export function TopNav({ profile }: TopNavProps) {
         {/* User menu */}
         <DropdownMenu.Root>
           <DropdownMenu.Trigger asChild>
-            <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20">
+            <button className="flex items-center gap-2 rounded-full focus:outline-none focus:ring-2 focus:ring-[#00274c]/20">
               {profile.avatar_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
@@ -61,7 +61,7 @@ export function TopNav({ profile }: TopNavProps) {
                   className="w-8 h-8 rounded-full border border-gray-200"
                 />
               ) : (
-                <div className="w-8 h-8 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-sm font-medium">
+                <div className="w-8 h-8 rounded-full bg-[#00274c] text-white flex items-center justify-center text-sm font-medium">
                   {profile.full_name?.charAt(0) ?? '?'}
                 </div>
               )}

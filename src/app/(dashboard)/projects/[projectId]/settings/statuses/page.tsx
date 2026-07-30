@@ -37,7 +37,7 @@ export default async function StatusesSettingsPage({
   return (
     <div className="p-6 max-w-3xl">
       <div className="flex items-center gap-2 mb-6">
-        <Layers className="w-5 h-5 text-[#1e3a5f]" />
+        <Layers className="w-5 h-5 text-[#00274c]" />
         <h2 className="text-lg font-semibold text-gray-900">Issue Statuses</h2>
       </div>
 

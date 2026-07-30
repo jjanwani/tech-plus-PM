@@ -50,7 +50,7 @@ export function ClientCard({ client, onClick, draggable = false, isDragOverlay =
       {client.industry && <p className="text-xs text-gray-500 truncate">{client.industry}</p>}
       {client.assigned_manager && (
         <div className="flex items-center gap-1.5 mt-2">
-          <div className="w-5 h-5 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-[10px] flex-shrink-0">
+          <div className="w-5 h-5 rounded-full bg-[#00274c] text-white flex items-center justify-center text-[10px] flex-shrink-0">
             {getInitials(client.assigned_manager.full_name)}
           </div>
           <span className="text-xs text-gray-500 truncate">{client.assigned_manager.full_name}</span>

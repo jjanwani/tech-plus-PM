@@ -56,7 +56,7 @@ function SortableRow({
     opacity: isDragging ? 0.5 : 1,
   }
 
-  const inputClass = 'px-2 py-1 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white'
+  const inputClass = 'px-2 py-1 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white'
 
   return (
     <div
@@ -96,7 +96,7 @@ function SortableRow({
           checked={status.is_default}
           onChange={(e) => onUpdate(status.id, 'is_default', e.target.checked)}
           disabled={!canManage}
-          className="w-3.5 h-3.5 rounded border-gray-300 text-[#1e3a5f]"
+          className="w-3.5 h-3.5 rounded border-gray-300 text-[#00274c]"
         />
         Default
       </label>
@@ -108,7 +108,7 @@ function SortableRow({
           checked={status.is_done}
           onChange={(e) => onUpdate(status.id, 'is_done', e.target.checked)}
           disabled={!canManage}
-          className="w-3.5 h-3.5 rounded border-gray-300 text-[#1e3a5f]"
+          className="w-3.5 h-3.5 rounded border-gray-300 text-[#00274c]"
         />
         Done
       </label>
@@ -258,7 +258,7 @@ export function StatusManager({ projectId, initialStatuses, canManage }: StatusM
         <div className="flex items-center gap-3 mt-4">
           <button
             onClick={handleAdd}
-            className="flex items-center gap-2 px-3 py-1.5 border border-dashed border-gray-300 text-gray-600 rounded-lg text-sm hover:border-[#1e3a5f] hover:text-[#1e3a5f] transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 border border-dashed border-gray-300 text-gray-600 rounded-lg text-sm hover:border-[#00274c] hover:text-[#00274c] transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Status
@@ -266,7 +266,7 @@ export function StatusManager({ projectId, initialStatuses, canManage }: StatusM
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 px-4 py-1.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-1.5 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
           >
             <Save className="w-4 h-4" />
             {saving ? 'Saving...' : 'Save Changes'}

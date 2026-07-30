@@ -1,7 +1,7 @@
 import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { KanbanBoard } from '@/components/board/kanban-board'
-import type { Issue, IssueStatus, Profile, Label, ProjectMember, Sprint } from '@/types'
+import type { Issue, IssueStatus, Profile, Label, ProjectMember } from '@/types'
 
 export default async function BoardPage({
   params,
@@ -13,7 +13,7 @@ export default async function BoardPage({
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: statuses }, { data: issues }, { data: members }, { data: labels }, { data: sprints }] =
+  const [{ data: statuses }, { data: issues }, { data: members }, { data: labels }] =
     await Promise.all([
       supabase
         .from('issue_statuses')
@@ -22,7 +22,7 @@ export default async function BoardPage({
         .order('position'),
       supabase
         .from('issues')
-        .select('*, status:issue_statuses(id,name,color), assignee:profiles!assignee_id(id,full_name,avatar_url), labels:issue_labels(label:labels(id,name,color)), _count:comments(count), sprint:sprints(id,name)')
+        .select('*, status:issue_statuses(id,name,color), assignee:profiles!assignee_id(id,full_name,avatar_url), labels:issue_labels(label:labels(id,name,color)), _count:comments(count)')
         .eq('project_id', projectId)
         .is('resolved_at', null)
         .order('position'),
@@ -34,11 +34,6 @@ export default async function BoardPage({
         .from('labels')
         .select('*')
         .eq('project_id', projectId),
-      supabase
-        .from('sprints')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('created_at', { ascending: false }),
     ])
 
   // Normalize issues - flatten labels
@@ -64,7 +59,6 @@ export default async function BoardPage({
         initialIssues={normalizedIssues}
         members={memberProfiles}
         projectMembers={projectMembers}
-        sprints={(sprints ?? []) as Sprint[]}
         labels={(labels ?? []) as Label[]}
       />
     </div>

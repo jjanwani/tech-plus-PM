@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { Sidebar } from '@/components/layout/sidebar'
 import { TopNav } from '@/components/layout/topnav'
+import { BrandPattern } from '@/components/layout/brand-pattern'
 import type { Profile } from '@/types'
 
 export default async function DashboardLayout({
@@ -31,8 +32,11 @@ export default async function DashboardLayout({
       <Sidebar profile={profile as Profile} />
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <TopNav profile={profile as Profile} />
-        <main className="flex-1 overflow-y-auto">
-          {children}
+        <main className="relative flex-1 overflow-y-auto">
+          <BrandPattern id="dashboard-pattern" className="fixed inset-0 pointer-events-none" color="#00274c" opacity={0.035} />
+          <div className="relative">
+            {children}
+          </div>
         </main>
       </div>
     </div>

@@ -27,7 +27,7 @@ export function NotificationDropdown({
         {hasUnread && (
           <button
             onClick={onMarkAllRead}
-            className="flex items-center gap-1 text-xs text-[#1e3a5f] hover:underline"
+            className="flex items-center gap-1 text-xs text-[#00274c] hover:underline"
           >
             <CheckCheck className="w-3.5 h-3.5" />
             Mark all read
@@ -55,7 +55,7 @@ export function NotificationDropdown({
         <Link
           href="/notifications"
           onClick={onClose}
-          className="block text-center text-xs text-[#1e3a5f] hover:underline py-1"
+          className="block text-center text-xs text-[#00274c] hover:underline py-1"
         >
           View all notifications
         </Link>

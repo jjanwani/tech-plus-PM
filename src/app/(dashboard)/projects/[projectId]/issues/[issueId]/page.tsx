@@ -8,7 +8,6 @@ import type {
   Project,
   IssueStatus,
   ProjectMember,
-  Sprint,
   Label,
   Comment,
   ActivityEntry,
@@ -33,7 +32,6 @@ export default async function IssueDetailPage({
     { data: project },
     { data: statuses },
     { data: members },
-    { data: sprints },
     { data: labels },
     { data: comments },
     { data: activityEntries },
@@ -50,8 +48,7 @@ export default async function IssueDetailPage({
         assignee:profiles!assignee_id(id,full_name,avatar_url,email,role,is_admin,is_active,created_at,updated_at),
         reporter:profiles!reporter_id(id,full_name,avatar_url,email,role,is_admin,is_active,created_at,updated_at),
         labels:issue_labels(label:labels(id,name,color)),
-        children:issues!parent_id(id,issue_key,title,type,status_id,priority,project_id,status:issue_statuses(id,name,color,is_done)),
-        sprint:sprints(id,name,status)`
+        children:issues!parent_id(id,issue_key,title,type,status_id,priority,project_id,status:issue_statuses(id,name,color,is_done))`
       )
       .eq('id', issueId)
       .single(),
@@ -68,12 +65,6 @@ export default async function IssueDetailPage({
       .from('project_members')
       .select('*, profile:profiles(id,full_name,avatar_url,email,role,is_admin,is_active,created_at,updated_at)')
       .eq('project_id', projectId),
-
-    supabase
-      .from('sprints')
-      .select('*')
-      .eq('project_id', projectId)
-      .order('created_at'),
 
     supabase.from('labels').select('*').eq('project_id', projectId),
 
@@ -120,7 +111,7 @@ export default async function IssueDetailPage({
       <div className="flex items-center gap-3 px-6 py-3 border-b border-gray-200 bg-white flex-shrink-0">
         <Link
           href={`/projects/${projectId}/board`}
-          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#1e3a5f] transition-colors"
+          className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#00274c] transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Board
@@ -134,7 +125,6 @@ export default async function IssueDetailPage({
           project={project as Project}
           statuses={(statuses ?? []) as IssueStatus[]}
           members={(members ?? []) as ProjectMember[]}
-          sprints={(sprints ?? []) as Sprint[]}
           labels={(labels ?? []) as Label[]}
           comments={(comments ?? []) as Comment[]}
           activityEntries={(activityEntries ?? []) as ActivityEntry[]}

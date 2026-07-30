@@ -4,15 +4,19 @@ import { useState } from 'react'
 import { Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils/cn'
-import type { Project } from '@/types'
+import { FILE_TYPE_LABELS } from '@/types'
+import type { Project, FileType } from '@/types'
 
 interface BulkDeliverableFormProps {
   projects: Project[]
 }
 
+const FILE_TYPES: FileType[] = ['meeting_minutes', 'deliverable', 'research', 'other']
+
 export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')
+  const [fileType, setFileType] = useState<FileType>('deliverable')
   const [linkUrl, setLinkUrl] = useState('')
   const [dueDate, setDueDate] = useState('')
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
@@ -42,6 +46,10 @@ export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
     })
   }
 
+  function selectOnly(group: Project[]) {
+    setSelectedIds(new Set(group.map((p) => p.id)))
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim() || selectedIds.size === 0) return
@@ -55,6 +63,7 @@ export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
           project_ids: Array.from(selectedIds),
           title: title.trim(),
           description: description || undefined,
+          file_type: fileType,
           link_url: linkUrl || undefined,
           due_date: dueDate || undefined,
         }),
@@ -67,6 +76,7 @@ export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
       toast.success(`Added to ${created.length} project${created.length !== 1 ? 's' : ''}`)
       setTitle('')
       setDescription('')
+      setFileType('deliverable')
       setLinkUrl('')
       setDueDate('')
       setSelectedIds(new Set())
@@ -77,7 +87,7 @@ export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]'
+  const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]'
 
   function renderGroup(label: string, group: Project[]) {
     if (group.length === 0) return null
@@ -89,7 +99,7 @@ export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
           <button
             type="button"
             onClick={() => toggleGroup(group)}
-            className="text-xs text-[#1e3a5f] hover:underline"
+            className="text-xs text-[#00274c] hover:underline"
           >
             {allSelected ? 'Deselect all' : 'Select all'}
           </button>
@@ -104,13 +114,13 @@ export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
                 onClick={() => toggleProject(p.id)}
                 className={cn(
                   'flex items-center gap-2 px-3 py-2 rounded-lg border text-left text-sm transition-colors',
-                  checked ? 'bg-[#1e3a5f]/5 border-[#1e3a5f]/30' : 'bg-white border-gray-200 hover:border-gray-300'
+                  checked ? 'bg-[#00274c]/5 border-[#00274c]/30' : 'bg-white border-gray-200 hover:border-gray-300'
                 )}
               >
                 <div
                   className={cn(
                     'w-4 h-4 rounded border flex items-center justify-center flex-shrink-0',
-                    checked ? 'bg-[#1e3a5f] border-[#1e3a5f] text-white' : 'border-gray-300'
+                    checked ? 'bg-[#00274c] border-[#00274c] text-white' : 'border-gray-300'
                   )}
                 >
                   {checked && <Check className="w-3 h-3" />}
@@ -142,22 +152,60 @@ export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
         className={cn(inputClass, 'resize-none')}
       />
       <div className="grid grid-cols-2 gap-3">
+        <select
+          value={fileType}
+          onChange={(e) => setFileType(e.target.value as FileType)}
+          className={cn(inputClass, 'bg-white')}
+        >
+          {FILE_TYPES.map((t) => (
+            <option key={t} value={t}>{FILE_TYPE_LABELS[t]}</option>
+          ))}
+        </select>
         <input
           type="date"
           value={dueDate}
           onChange={(e) => setDueDate(e.target.value)}
           className={inputClass}
         />
-        <input
-          type="url"
-          value={linkUrl}
-          onChange={(e) => setLinkUrl(e.target.value)}
-          placeholder="Link URL (optional)"
-          className={inputClass}
-        />
       </div>
+      <input
+        type="url"
+        value={linkUrl}
+        onChange={(e) => setLinkUrl(e.target.value)}
+        placeholder="Link URL (optional)"
+        className={inputClass}
+      />
 
       <div className="space-y-4 pt-1">
+        {(internalProjects.length > 0 || externalProjects.length > 0) && (
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => selectOnly(internalProjects)}
+              disabled={internalProjects.length === 0}
+              className="px-3 py-1.5 rounded-lg border border-[#00274c]/30 text-[#00274c] text-sm font-medium hover:bg-[#00274c]/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              All Internal
+            </button>
+            <button
+              type="button"
+              onClick={() => selectOnly(externalProjects)}
+              disabled={externalProjects.length === 0}
+              className="px-3 py-1.5 rounded-lg border border-orange-300 text-orange-700 text-sm font-medium hover:bg-orange-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              All External
+            </button>
+            {selectedIds.size > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedIds(new Set())}
+                className="px-3 py-1.5 rounded-lg text-gray-500 text-sm font-medium hover:bg-gray-50 transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        )}
         {renderGroup('Internal Projects', internalProjects)}
         {renderGroup('External Projects', externalProjects)}
         {projects.length === 0 && (
@@ -169,7 +217,7 @@ export function BulkDeliverableForm({ projects }: BulkDeliverableFormProps) {
         <button
           type="submit"
           disabled={!title.trim() || selectedIds.size === 0 || submitting}
-          className="px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+          className="px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
         >
           {submitting ? 'Adding...' : `Add to ${selectedIds.size} Project${selectedIds.size !== 1 ? 's' : ''}`}
         </button>

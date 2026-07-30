@@ -17,7 +17,7 @@ import { KanbanColumn } from './kanban-column'
 import { IssueCard } from './issue-card'
 import { BoardFiltersBar, type BoardFilters } from './board-filters'
 import { IssueDialog } from '@/components/issues/issue-dialog'
-import type { Issue, IssueStatus, Profile, Label, ProjectMember, Sprint } from '@/types'
+import type { Issue, IssueStatus, Profile, Label, ProjectMember } from '@/types'
 
 interface KanbanBoardProps {
   projectId: string
@@ -25,7 +25,6 @@ interface KanbanBoardProps {
   initialIssues: Issue[]
   members: Profile[]
   projectMembers: ProjectMember[]
-  sprints: Sprint[]
   labels: Label[]
 }
 
@@ -35,7 +34,6 @@ export function KanbanBoard({
   initialIssues,
   members,
   projectMembers,
-  sprints,
   labels,
 }: KanbanBoardProps) {
   const [issues, setIssues] = useState<Issue[]>(initialIssues)
@@ -201,7 +199,6 @@ export function KanbanBoard({
           projectId={projectId}
           statuses={initialStatuses}
           members={projectMembers}
-          sprints={sprints}
           labels={labels}
           defaultValues={{ status_id: addIssueStatusId }}
           onClose={() => setAddIssueStatusId(null)}

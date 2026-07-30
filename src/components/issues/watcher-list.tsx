@@ -75,7 +75,7 @@ export function WatcherList({ issueId, initialWatchers, currentUserId }: Watcher
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={watcher.avatar_url} alt={watcher.full_name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-[#1e3a5f] flex items-center justify-center">
+                  <div className="w-full h-full bg-[#00274c] flex items-center justify-center">
                     <span className="text-white text-xs font-medium">{getInitials(watcher.full_name)}</span>
                   </div>
                 )}
@@ -98,7 +98,7 @@ export function WatcherList({ issueId, initialWatchers, currentUserId }: Watcher
           'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border',
           isWatching
             ? 'border-gray-200 text-gray-600 hover:bg-red-50 hover:text-red-600 hover:border-red-200'
-            : 'border-[#1e3a5f] text-[#1e3a5f] hover:bg-[#1e3a5f] hover:text-white'
+            : 'border-[#00274c] text-[#00274c] hover:bg-[#00274c] hover:text-white'
         )}
       >
         {isWatching ? (

@@ -18,7 +18,6 @@ import type {
   Project,
   IssueStatus,
   ProjectMember,
-  Sprint,
   Label,
   Comment,
   ActivityEntry,
@@ -33,7 +32,6 @@ interface IssueDetailProps {
   project: Project
   statuses: IssueStatus[]
   members: ProjectMember[]
-  sprints: Sprint[]
   labels: Label[]
   comments: Comment[]
   activityEntries: ActivityEntry[]
@@ -64,7 +62,6 @@ export function IssueDetail({
   project: _project,
   statuses,
   members,
-  sprints,
   labels: allLabels,
   comments,
   activityEntries,
@@ -123,7 +120,7 @@ export function IssueDetail({
     }))
   }
 
-  const inputClass = 'w-full px-2 py-1 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white'
+  const inputClass = 'w-full px-2 py-1 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white'
   const sidebarLabelClass = 'text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1 block'
 
   return (
@@ -148,13 +145,13 @@ export function IssueDetail({
                 if (e.key === 'Enter') saveTitle()
                 if (e.key === 'Escape') { setEditingTitle(false); setTitleDraft(currentIssue.title) }
               }}
-              className="w-full text-xl font-bold text-gray-900 border-b-2 border-[#1e3a5f] focus:outline-none bg-transparent pb-1"
+              className="w-full text-xl font-bold text-gray-900 border-b-2 border-[#00274c] focus:outline-none bg-transparent pb-1"
               autoFocus
             />
           </div>
         ) : (
           <h1
-            className="text-xl font-bold text-gray-900 mb-4 cursor-pointer hover:text-[#1e3a5f] transition-colors leading-snug"
+            className="text-xl font-bold text-gray-900 mb-4 cursor-pointer hover:text-[#00274c] transition-colors leading-snug"
             onClick={() => { setEditingTitle(true); setTitleDraft(currentIssue.title) }}
             title="Click to edit title"
           >
@@ -197,11 +194,11 @@ export function IssueDetail({
                   if (e.key === 'Escape') { setEditingDesc(false); setDescDraft(currentIssue.description ?? '') }
                 }}
                 rows={5}
-                className="w-full px-3 py-2 border border-[#1e3a5f] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 resize-none"
+                className="w-full px-3 py-2 border border-[#00274c] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 resize-none"
                 autoFocus
               />
               <div className="flex gap-2 mt-2">
-                <button onClick={saveDesc} className="px-3 py-1 bg-[#1e3a5f] text-white text-xs rounded-lg font-medium hover:bg-[#2d5a8e]">Save</button>
+                <button onClick={saveDesc} className="px-3 py-1 bg-[#00274c] text-white text-xs rounded-lg font-medium hover:bg-[#15345c]">Save</button>
                 <button onClick={() => { setEditingDesc(false); setDescDraft(currentIssue.description ?? '') }} className="px-3 py-1 border border-gray-200 text-gray-600 text-xs rounded-lg font-medium hover:bg-gray-50">Cancel</button>
               </div>
             </div>
@@ -251,7 +248,7 @@ export function IssueDetail({
                 value={tab}
                 className={cn(
                   'px-4 py-2 text-sm font-medium capitalize border-b-2 -mb-px transition-colors',
-                  'data-[state=active]:border-[#1e3a5f] data-[state=active]:text-[#1e3a5f]',
+                  'data-[state=active]:border-[#00274c] data-[state=active]:text-[#00274c]',
                   'data-[state=inactive]:border-transparent data-[state=inactive]:text-gray-500 data-[state=inactive]:hover:text-gray-700'
                 )}
               >
@@ -348,21 +345,6 @@ export function IssueDetail({
             )}
             <span className="text-sm text-gray-700">{currentIssue.reporter?.full_name ?? '—'}</span>
           </div>
-        </div>
-
-        {/* Sprint */}
-        <div>
-          <label className={sidebarLabelClass}>Sprint</label>
-          <select
-            value={currentIssue.sprint_id ?? ''}
-            onChange={(e) => handleFieldChange({ sprint_id: e.target.value || null })}
-            className={inputClass}
-          >
-            <option value="">No Sprint</option>
-            {sprints.map((s) => (
-              <option key={s.id} value={s.id}>{s.name}</option>
-            ))}
-          </select>
         </div>
 
         {/* Story Points */}

@@ -103,12 +103,12 @@ export function AccessOverview({ users, memberships: initialMemberships, project
     }
   }
 
-  const inputClass = 'px-2 py-1 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]'
+  const inputClass = 'px-2 py-1 border border-gray-200 rounded-lg text-xs bg-white focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]'
 
   return (
     <div className="mt-8">
       <div className="flex items-center gap-2 mb-1">
-        <ShieldCheck className="w-4 h-4 text-[#1e3a5f]" />
+        <ShieldCheck className="w-4 h-4 text-[#00274c]" />
         <h2 className="text-base font-semibold text-gray-900">Access Overview</h2>
       </div>
       <p className="text-sm text-gray-500 mb-4">What each person can see and manage, in one place.</p>
@@ -136,7 +136,7 @@ export function AccessOverview({ users, memberships: initialMemberships, project
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={user.avatar_url} alt={user.full_name} className="w-7 h-7 rounded-full flex-shrink-0" />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs flex-shrink-0">
                           {getInitials(user.full_name)}
                         </div>
                       )}
@@ -149,7 +149,7 @@ export function AccessOverview({ users, memberships: initialMemberships, project
                   <td className="px-4 py-3 text-gray-700 whitespace-nowrap">{ROLE_LABELS[user.role]}</td>
                   <td className="px-4 py-3">
                     {user.is_admin ? (
-                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#1e3a5f]/10 text-[#1e3a5f] font-medium">Admin</span>
+                      <span className="text-xs px-2 py-0.5 rounded-full bg-[#00274c]/10 text-[#00274c] font-medium">Admin</span>
                     ) : (
                       <span className="text-gray-300">—</span>
                     )}
@@ -203,7 +203,7 @@ export function AccessOverview({ users, memberships: initialMemberships, project
                             type="button"
                             onClick={() => handleAssign(user.id)}
                             disabled={!selectedProjectId || saving}
-                            className="p-1 rounded-lg bg-[#1e3a5f] text-white disabled:opacity-50 hover:bg-[#2d5a8e] transition-colors"
+                            className="p-1 rounded-lg bg-[#00274c] text-white disabled:opacity-50 hover:bg-[#15345c] transition-colors"
                             title="Confirm"
                           >
                             <Check className="w-3 h-3" />
@@ -226,7 +226,7 @@ export function AccessOverview({ users, memberships: initialMemberships, project
                             'flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-dashed transition-colors',
                             availableProjects.length === 0
                               ? 'border-gray-100 text-gray-300 cursor-default'
-                              : 'border-gray-300 text-gray-500 hover:border-[#1e3a5f] hover:text-[#1e3a5f]'
+                              : 'border-gray-300 text-gray-500 hover:border-[#00274c] hover:text-[#00274c]'
                           )}
                         >
                           <Plus className="w-3 h-3" />

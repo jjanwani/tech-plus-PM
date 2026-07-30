@@ -66,7 +66,7 @@ export function BoardFiltersBar({ members, labels, filters, onChange }: BoardFil
                 className={cn(
                   'w-7 h-7 rounded-full border-2 transition-all overflow-hidden',
                   filters.assigneeIds.includes(member.id)
-                    ? 'border-[#1e3a5f] ring-2 ring-[#1e3a5f]/20'
+                    ? 'border-[#00274c] ring-2 ring-[#00274c]/20'
                     : 'border-transparent opacity-60 hover:opacity-100'
                 )}
                 title={member.full_name}
@@ -75,7 +75,7 @@ export function BoardFiltersBar({ members, labels, filters, onChange }: BoardFil
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={member.avatar_url} alt={member.full_name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className="w-full h-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs font-medium">
+                  <div className="w-full h-full bg-[#00274c] text-white flex items-center justify-center text-xs font-medium">
                     {member.full_name.charAt(0)}
                   </div>
                 )}
@@ -96,7 +96,7 @@ export function BoardFiltersBar({ members, labels, filters, onChange }: BoardFil
               className={cn(
                 'flex items-center gap-1 text-xs px-2 py-1 rounded-full border transition-all',
                 filters.priorities.includes(p)
-                  ? 'border-[#1e3a5f] bg-[#1e3a5f]/5 text-[#1e3a5f] font-medium'
+                  ? 'border-[#00274c] bg-[#00274c]/5 text-[#00274c] font-medium'
                   : 'border-gray-200 text-gray-500 hover:border-gray-300'
               )}
             >

@@ -27,7 +27,7 @@ export default async function AdminDeliverablesPage() {
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-2">
-        <ListChecks className="w-5 h-5 text-[#1e3a5f]" />
+        <ListChecks className="w-5 h-5 text-[#00274c]" />
         <h1 className="text-xl font-bold text-gray-900">Assign Deliverable</h1>
       </div>
       <p className="text-sm text-gray-500 mb-6">

@@ -17,7 +17,6 @@ export async function GET(_req: NextRequest, { params }: Params) {
       status:status_id(*),
       assignee:assignee_id(id,full_name,email,avatar_url),
       reporter:reporter_id(id,full_name,avatar_url),
-      sprint:sprint_id(id,name,status),
       labels:issue_labels(label:label_id(*)),
       children:issues(id,issue_key,title,type,priority,status:status_id(name,color),assignee:assignee_id(id,full_name,avatar_url))
     `)

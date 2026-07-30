@@ -8,7 +8,7 @@ export default async function AuthErrorPage({
   const { message } = await searchParams
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#1e3a5f] to-[#2d5a8e] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#00274c] to-[#15345c] px-4">
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-2xl p-8 text-center">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-100 mb-4">
@@ -30,7 +30,7 @@ export default async function AuthErrorPage({
           <h1 className="text-xl font-bold text-gray-900 mb-2">Authentication Failed</h1>
           <p className="text-gray-600 mb-2">
             Please use your{' '}
-            <span className="font-semibold text-[#1e3a5f]">@umich.edu</span> Google account to sign in.
+            <span className="font-semibold text-[#00274c]">@umich.edu</span> Google account to sign in.
             Personal Gmail accounts are not permitted.
           </p>
           {message && (
@@ -40,7 +40,7 @@ export default async function AuthErrorPage({
           )}
           <Link
             href="/auth/login"
-            className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg bg-[#1e3a5f] text-white font-medium hover:bg-[#2d5a8e] transition-colors"
+            className="inline-flex items-center justify-center px-6 py-2.5 rounded-lg bg-[#00274c] text-white font-medium hover:bg-[#15345c] transition-colors"
           >
             Back to Login
           </Link>

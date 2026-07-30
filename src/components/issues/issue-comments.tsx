@@ -106,7 +106,7 @@ export function IssueComments({ issueId, initialComments, members, currentUserId
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={author.avatar_url} alt={author.full_name} className="w-7 h-7 rounded-full" />
               ) : (
-                <div className="w-7 h-7 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs">
+                <div className="w-7 h-7 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs">
                   {author ? getInitials(author.full_name) : '?'}
                 </div>
               )}
@@ -130,12 +130,12 @@ export function IssueComments({ issueId, initialComments, members, currentUserId
                     value={editBody}
                     onChange={(e) => setEditBody(e.target.value)}
                     rows={3}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] resize-none"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] resize-none"
                   />
                   <div className="flex gap-2">
                     <button
                       onClick={() => handleEdit(comment.id)}
-                      className="px-3 py-1 bg-[#1e3a5f] text-white rounded text-xs font-medium hover:bg-[#2d5a8e]"
+                      className="px-3 py-1 bg-[#00274c] text-white rounded text-xs font-medium hover:bg-[#15345c]"
                     >
                       Save
                     </button>

@@ -12,14 +12,11 @@ export type ProjectType = 'internal' | 'external'
 export type ProjectTerm = 'fall' | 'winter'
 export type IssueType = 'epic' | 'story' | 'task' | 'subtask'
 export type IssuePriority = 'critical' | 'high' | 'medium' | 'low'
-export type SprintStatus = 'planning' | 'active' | 'completed'
 export type NotificationType =
   | 'mention'
   | 'assignment'
   | 'comment'
   | 'status_change'
-  | 'sprint_start'
-  | 'sprint_end'
   | 'watcher_update'
   | 'due_date_reminder'
 
@@ -93,20 +90,6 @@ export interface IssueStatus {
   created_at: string
 }
 
-export interface Sprint {
-  id: string
-  project_id: string
-  name: string
-  goal: string | null
-  status: SprintStatus
-  start_date: string | null
-  end_date: string | null
-  completed_at: string | null
-  created_by: string | null
-  created_at: string
-  updated_at: string
-}
-
 export interface Label {
   id: string
   project_id: string
@@ -118,7 +101,6 @@ export interface Issue {
   id: string
   issue_key: string
   project_id: string
-  sprint_id: string | null
   parent_id: string | null
   status_id: string
   type: IssueType
@@ -140,7 +122,6 @@ export interface Issue {
   reporter?: Profile
   labels?: Label[]
   children?: Issue[]
-  sprint?: Sprint
   _count?: { comments: number; attachments: number }
 }
 
@@ -290,11 +271,21 @@ export interface Client {
   assigned_manager?: Profile
 }
 
+export type FileType = 'meeting_minutes' | 'deliverable' | 'research' | 'other'
+
+export const FILE_TYPE_LABELS: Record<FileType, string> = {
+  meeting_minutes: 'Meeting Minutes',
+  deliverable: 'Deliverable',
+  research: 'Research',
+  other: 'Other',
+}
+
 export interface Deliverable {
   id: string
   project_id: string
   title: string
   description: string | null
+  file_type: FileType
   link_url: string | null
   file_path: string | null
   file_name: string | null
@@ -354,21 +345,6 @@ export interface Favorite {
   created_at: string
 }
 
-export interface SprintBurndown {
-  snapshot_date: string
-  remaining_points: number
-  completed_points: number
-  total_points: number
-}
-
-export interface SprintVelocity {
-  sprint_id: string
-  committed_points: number
-  completed_points: number
-  completed_at: string
-  sprint?: Sprint
-}
-
 export interface ProjectSummary {
   id: string
   name: string
@@ -382,7 +358,6 @@ export interface ProjectSummary {
   open_issues: number
   total_issues: number
   member_count: number
-  current_sprint_end: string | null
 }
 
 const TERM_CODE: Record<ProjectTerm, string> = { fall: 'FA', winter: 'WN' }

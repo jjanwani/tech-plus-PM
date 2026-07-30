@@ -46,7 +46,7 @@ export default async function NotificationsPage() {
     <div className="p-6 max-w-2xl mx-auto">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Bell className="w-5 h-5 text-[#1e3a5f]" />
+          <Bell className="w-5 h-5 text-[#00274c]" />
           <h1 className="text-xl font-bold text-gray-900">Notifications</h1>
           {unreadCount > 0 && (
             <span className="text-xs bg-red-500 text-white rounded-full px-2 py-0.5 font-medium">

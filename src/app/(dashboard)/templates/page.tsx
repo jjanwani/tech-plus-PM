@@ -54,7 +54,7 @@ export default async function TemplatesPage() {
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <FileText className="w-5 h-5 text-[#1e3a5f]" />
+          <FileText className="w-5 h-5 text-[#00274c]" />
           <h1 className="text-xl font-bold text-gray-900">Templates</h1>
         </div>
         {canAddTemplate && <TemplateFormModal />}

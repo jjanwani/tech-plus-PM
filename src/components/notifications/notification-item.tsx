@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Bell, AtSign, UserCheck, MessageCircle, AlertCircle, Zap } from 'lucide-react'
+import { Bell, AtSign, UserCheck, MessageCircle, AlertCircle } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { timeAgo } from '@/lib/utils/date'
 import type { Notification, NotificationType } from '@/types'
@@ -19,8 +19,6 @@ function getNotificationIcon(type: NotificationType) {
     case 'assignment': return <UserCheck className={cn(base, 'text-green-500')} />
     case 'comment': return <MessageCircle className={cn(base, 'text-purple-500')} />
     case 'status_change': return <AlertCircle className={cn(base, 'text-orange-500')} />
-    case 'sprint_start':
-    case 'sprint_end': return <Zap className={cn(base, 'text-yellow-500')} />
     default: return <Bell className={cn(base, 'text-gray-500')} />
   }
 }

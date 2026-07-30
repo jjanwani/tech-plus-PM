@@ -89,7 +89,7 @@ export function RoadmapTimeline({ projectId, initialCheckpoints, deliverables, c
     }
   }
 
-  const inputClass = 'px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white'
+  const inputClass = 'px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white'
 
   return (
     <div className="flex flex-col h-full">
@@ -98,7 +98,7 @@ export function RoadmapTimeline({ projectId, initialCheckpoints, deliverables, c
           {!adding ? (
             <button
               onClick={() => setAdding(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors"
             >
               <Plus className="w-4 h-4" />
               Add Checkpoint
@@ -120,7 +120,7 @@ export function RoadmapTimeline({ projectId, initialCheckpoints, deliverables, c
               <button
                 onClick={handleAdd}
                 disabled={!title.trim() || !date || saving}
-                className="flex items-center gap-1.5 px-3 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
               >
                 <Check className="w-4 h-4" />
                 {saving ? 'Adding...' : 'Add'}
@@ -165,7 +165,7 @@ export function RoadmapTimeline({ projectId, initialCheckpoints, deliverables, c
                     <div
                       className={cn(
                         'w-4 h-4 rounded-full border-2 border-white shadow flex items-center justify-center z-10',
-                        isOrgWide ? 'bg-[#d6a419]' : 'bg-[#1e3a5f]'
+                        isOrgWide ? 'bg-[#f1c100]' : 'bg-[#00274c]'
                       )}
                       title={checkpoint.description ?? undefined}
                     >
@@ -174,7 +174,7 @@ export function RoadmapTimeline({ projectId, initialCheckpoints, deliverables, c
                     <div className="mt-1.5 w-28 text-center">
                       <p className="text-[11px] font-medium text-gray-700 truncate">{checkpoint.title}</p>
                       <p className="text-[10px] text-gray-400">{format(parseISO(checkpoint.checkpoint_date), 'MMM d')}</p>
-                      {isOrgWide && <span className="text-[9px] text-[#d6a419] font-medium">Org-wide</span>}
+                      {isOrgWide && <span className="text-[9px] text-[#f1c100] font-medium">Org-wide</span>}
                     </div>
                     {canManage && !isOrgWide && (
                       <button

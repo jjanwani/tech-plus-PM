@@ -115,7 +115,7 @@ export function MemberTable({ projectId, initialMembers, allUsers, canManage }: 
         {canManage && (
           <button
             onClick={() => setAddingMember((v) => !v)}
-            className="flex items-center gap-2 px-3 py-1.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+            className="flex items-center gap-2 px-3 py-1.5 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors"
           >
             {addingMember ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {addingMember ? 'Cancel' : 'Add Member'}
@@ -133,7 +133,7 @@ export function MemberTable({ projectId, initialMembers, allUsers, canManage }: 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search users..."
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]"
               />
               {searchQuery && availableUsers.length > 0 && (
                 <div className="mt-1 border border-gray-200 rounded-lg bg-white shadow-sm max-h-40 overflow-y-auto">
@@ -144,10 +144,10 @@ export function MemberTable({ projectId, initialMembers, allUsers, canManage }: 
                       onClick={() => { setSelectedUserId(u.id); setSearchQuery(u.full_name) }}
                       className={cn(
                         'w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 text-left',
-                        selectedUserId === u.id && 'bg-[#1e3a5f]/5'
+                        selectedUserId === u.id && 'bg-[#00274c]/5'
                       )}
                     >
-                      <div className="w-6 h-6 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs flex-shrink-0">
+                      <div className="w-6 h-6 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs flex-shrink-0">
                         {getInitials(u.full_name)}
                       </div>
                       <div>
@@ -163,7 +163,7 @@ export function MemberTable({ projectId, initialMembers, allUsers, canManage }: 
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white"
+                className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white"
               >
                 {ROLES.map((r) => (
                   <option key={r} value={r}>{ROLE_LABELS[r]}</option>
@@ -174,7 +174,7 @@ export function MemberTable({ projectId, initialMembers, allUsers, canManage }: 
           <button
             onClick={handleAdd}
             disabled={!selectedUserId || savingId === 'add'}
-            className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
           >
             <Check className="w-4 h-4" />
             {savingId === 'add' ? 'Adding...' : 'Add Member'}
@@ -212,7 +212,7 @@ export function MemberTable({ projectId, initialMembers, allUsers, canManage }: 
                         // eslint-disable-next-line @next/next/no-img-element
                         <img src={profile.avatar_url} alt={profile.full_name} className="w-7 h-7 rounded-full flex-shrink-0" />
                       ) : (
-                        <div className="w-7 h-7 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs flex-shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs flex-shrink-0">
                           {profile ? getInitials(profile.full_name) : '?'}
                         </div>
                       )}
@@ -230,7 +230,7 @@ export function MemberTable({ projectId, initialMembers, allUsers, canManage }: 
                         value={member.role}
                         onChange={(e) => handleRoleChange(member, e.target.value as UserRole)}
                         disabled={savingId === member.id}
-                        className="px-2 py-1 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+                        className="px-2 py-1 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]"
                       >
                         {ROLES.map((r) => (
                           <option key={r} value={r}>{ROLE_LABELS[r]}</option>

@@ -6,7 +6,8 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils/cn'
 import { formatDate, isOverdue } from '@/lib/utils/date'
 import { AssigneePicker } from '@/components/issues/assignee-picker'
-import type { Deliverable, ProjectMember } from '@/types'
+import { FILE_TYPE_LABELS } from '@/types'
+import type { Deliverable, ProjectMember, FileType } from '@/types'
 
 interface DeliverableListProps {
   projectId: string
@@ -18,12 +19,22 @@ interface DeliverableListProps {
 interface DraftDeliverable {
   title: string
   description: string
+  file_type: FileType
   link_url: string
   due_date: string
   responsible_id: string | null
 }
 
-const emptyDraft: DraftDeliverable = { title: '', description: '', link_url: '', due_date: '', responsible_id: null }
+const emptyDraft: DraftDeliverable = { title: '', description: '', file_type: 'deliverable', link_url: '', due_date: '', responsible_id: null }
+
+const FILE_TYPES: FileType[] = ['meeting_minutes', 'deliverable', 'research', 'other']
+
+const FILE_TYPE_BADGE_STYLES: Record<FileType, string> = {
+  meeting_minutes: 'bg-purple-100 text-purple-700',
+  deliverable: 'bg-blue-100 text-blue-700',
+  research: 'bg-emerald-100 text-emerald-700',
+  other: 'bg-gray-100 text-gray-600',
+}
 
 export function DeliverableList({ projectId, initialDeliverables, members, canManage }: DeliverableListProps) {
   const [deliverables, setDeliverables] = useState<Deliverable[]>(initialDeliverables)
@@ -31,8 +42,13 @@ export function DeliverableList({ projectId, initialDeliverables, members, canMa
   const [draft, setDraft] = useState<DraftDeliverable>(emptyDraft)
   const [submitting, setSubmitting] = useState(false)
   const [uploadingId, setUploadingId] = useState<string | null>(null)
+  const [typeFilter, setTypeFilter] = useState<FileType | 'all'>('all')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pendingUploadDeliverableId = useRef<string | null>(null)
+
+  const filteredDeliverables = typeFilter === 'all'
+    ? deliverables
+    : deliverables.filter((d) => d.file_type === typeFilter)
 
   async function handleCreate(e: React.FormEvent) {
     e.preventDefault()
@@ -45,6 +61,7 @@ export function DeliverableList({ projectId, initialDeliverables, members, canMa
         body: JSON.stringify({
           title: draft.title,
           description: draft.description || undefined,
+          file_type: draft.file_type,
           link_url: draft.link_url || undefined,
           due_date: draft.due_date || undefined,
           responsible_id: draft.responsible_id || undefined,
@@ -143,21 +160,47 @@ export function DeliverableList({ projectId, initialDeliverables, members, canMa
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
-          <ListChecks className="w-5 h-5 text-[#1e3a5f]" />
-          <h2 className="text-lg font-semibold text-gray-900">Deliverables</h2>
+          <ListChecks className="w-5 h-5 text-[#00274c]" />
+          <h2 className="text-lg font-semibold text-gray-900">Files</h2>
         </div>
         {canManage && (
           <button
             type="button"
             onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Add Deliverable
+            Add File
           </button>
         )}
+      </div>
+
+      <div className="flex items-center gap-1.5 mb-6 flex-wrap">
+        <button
+          type="button"
+          onClick={() => setTypeFilter('all')}
+          className={cn(
+            'px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
+            typeFilter === 'all' ? 'bg-[#00274c] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+          )}
+        >
+          All
+        </button>
+        {FILE_TYPES.map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTypeFilter(t)}
+            className={cn(
+              'px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
+              typeFilter === t ? 'bg-[#00274c] text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+            )}
+          >
+            {FILE_TYPE_LABELS[t]}
+          </button>
+        ))}
       </div>
 
       {showForm && (
@@ -165,42 +208,51 @@ export function DeliverableList({ projectId, initialDeliverables, members, canMa
           <input
             value={draft.title}
             onChange={(e) => setDraft((d) => ({ ...d, title: e.target.value }))}
-            placeholder="Deliverable title *"
+            placeholder="File title *"
             required
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]"
           />
           <textarea
             value={draft.description}
             onChange={(e) => setDraft((d) => ({ ...d, description: e.target.value }))}
             placeholder="Description (optional)"
             rows={2}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] resize-none"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] resize-none"
           />
           <div className="grid grid-cols-2 gap-3">
+            <select
+              value={draft.file_type}
+              onChange={(e) => setDraft((d) => ({ ...d, file_type: e.target.value as FileType }))}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]"
+            >
+              {FILE_TYPES.map((t) => (
+                <option key={t} value={t}>{FILE_TYPE_LABELS[t]}</option>
+              ))}
+            </select>
             <input
               type="date"
               value={draft.due_date}
               onChange={(e) => setDraft((d) => ({ ...d, due_date: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
-            />
-            <AssigneePicker
-              members={members}
-              value={draft.responsible_id}
-              onChange={(id) => setDraft((d) => ({ ...d, responsible_id: id }))}
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]"
             />
           </div>
+          <AssigneePicker
+            members={members}
+            value={draft.responsible_id}
+            onChange={(id) => setDraft((d) => ({ ...d, responsible_id: id }))}
+          />
           <input
             type="url"
             value={draft.link_url}
             onChange={(e) => setDraft((d) => ({ ...d, link_url: e.target.value }))}
             placeholder="Link URL (optional)"
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]"
           />
           <div className="flex items-center gap-2 pt-1">
             <button
               type="submit"
               disabled={submitting}
-              className="px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+              className="px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
             >
               {submitting ? 'Saving...' : 'Save'}
             </button>
@@ -220,12 +272,14 @@ export function DeliverableList({ projectId, initialDeliverables, members, canMa
 
       <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} />
 
-      {deliverables.length === 0 && (
-        <p className="text-sm text-gray-400 text-center py-12">No deliverables yet.</p>
+      {filteredDeliverables.length === 0 && (
+        <p className="text-sm text-gray-400 text-center py-12">
+          {deliverables.length === 0 ? 'No files yet.' : 'No files match this filter.'}
+        </p>
       )}
 
       <div className="space-y-2">
-        {deliverables.map((deliverable) => {
+        {filteredDeliverables.map((deliverable) => {
           const overdue = !deliverable.is_complete && isOverdue(deliverable.due_date)
           return (
             <div
@@ -239,8 +293,8 @@ export function DeliverableList({ projectId, initialDeliverables, members, canMa
                 className={cn(
                   'w-5 h-5 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors',
                   deliverable.is_complete
-                    ? 'bg-[#1e3a5f] border-[#1e3a5f] text-white'
-                    : 'border-gray-300 hover:border-[#1e3a5f]'
+                    ? 'bg-[#00274c] border-[#00274c] text-white'
+                    : 'border-gray-300 hover:border-[#00274c]'
                 )}
                 title={deliverable.is_complete ? 'Mark incomplete' : 'Mark complete'}
               >
@@ -248,14 +302,19 @@ export function DeliverableList({ projectId, initialDeliverables, members, canMa
               </button>
 
               <div className="flex-1 min-w-0">
-                <p
-                  className={cn(
-                    'text-sm font-medium truncate',
-                    deliverable.is_complete ? 'text-gray-400 line-through' : 'text-gray-900'
-                  )}
-                >
-                  {deliverable.title}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p
+                    className={cn(
+                      'text-sm font-medium truncate',
+                      deliverable.is_complete ? 'text-gray-400 line-through' : 'text-gray-900'
+                    )}
+                  >
+                    {deliverable.title}
+                  </p>
+                  <span className={cn('text-[10px] font-medium px-1.5 py-0.5 rounded-full flex-shrink-0', FILE_TYPE_BADGE_STYLES[deliverable.file_type])}>
+                    {FILE_TYPE_LABELS[deliverable.file_type]}
+                  </span>
+                </div>
                 {deliverable.description && (
                   <p className="text-xs text-gray-500 truncate">{deliverable.description}</p>
                 )}

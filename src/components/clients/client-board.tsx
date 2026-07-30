@@ -94,7 +94,7 @@ export function ClientBoard({ initialClients, managers, currentUserId, canCreate
         <div className="flex justify-end px-6 pt-4 pb-2">
           <button
             onClick={() => setFormTarget('new')}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors"
           >
             <Plus className="w-4 h-4" />
             Add Client

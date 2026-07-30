@@ -26,7 +26,3 @@ export function isDueSoon(dueDate: string | null, days = 3): boolean {
   threshold.setDate(threshold.getDate() + days)
   return isAfter(due, new Date()) && isBefore(due, threshold)
 }
-
-export function sprintWeekLabel(startDate: string, endDate: string): string {
-  return `${format(parseISO(startDate), 'MMM d')} – ${format(parseISO(endDate), 'MMM d')}`
-}

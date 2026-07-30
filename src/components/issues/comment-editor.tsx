@@ -105,7 +105,7 @@ export function CommentEditor({ issueId, members, onCommented }: CommentEditorPr
 
   return (
     <div className="relative">
-      <div className="border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#1e3a5f] focus-within:ring-2 focus-within:ring-[#1e3a5f]/10 transition-all">
+      <div className="border border-gray-200 rounded-xl overflow-hidden focus-within:border-[#00274c] focus-within:ring-2 focus-within:ring-[#00274c]/10 transition-all">
         <textarea
           ref={textareaRef}
           value={body}
@@ -124,7 +124,7 @@ export function CommentEditor({ issueId, members, onCommented }: CommentEditorPr
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors',
               body.trim()
-                ? 'bg-[#1e3a5f] text-white hover:bg-[#2d5a8e]'
+                ? 'bg-[#00274c] text-white hover:bg-[#15345c]'
                 : 'bg-gray-100 text-gray-400 cursor-not-allowed'
             )}
           >
@@ -150,10 +150,10 @@ export function CommentEditor({ issueId, members, onCommented }: CommentEditorPr
                 }}
                 className={cn(
                   'w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors text-left',
-                  i === mentionIndex && 'bg-[#1e3a5f]/5'
+                  i === mentionIndex && 'bg-[#00274c]/5'
                 )}
               >
-                <div className="w-6 h-6 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs flex-shrink-0">
+                <div className="w-6 h-6 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs flex-shrink-0">
                   {profile.full_name.charAt(0).toUpperCase()}
                 </div>
                 <span className="truncate text-gray-700">{profile.full_name}</span>

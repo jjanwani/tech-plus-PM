@@ -150,7 +150,7 @@ export function ClientFormModal({
   }
 
   const inputClass =
-    'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] disabled:bg-gray-50 disabled:text-gray-500'
+    'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] disabled:bg-gray-50 disabled:text-gray-500'
 
   return (
     <Dialog.Root open={open} onOpenChange={(v) => !v && onClose()}>
@@ -268,7 +268,7 @@ export function ClientFormModal({
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+                    className="px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
                   >
                     {submitting ? 'Saving...' : isEdit ? 'Save Changes' : 'Add Client'}
                   </button>

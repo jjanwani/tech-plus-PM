@@ -18,7 +18,7 @@ export function TemplateFormModal() {
   return (
     <Dialog.Root open={open} onOpenChange={setOpen}>
       <Dialog.Trigger asChild>
-        <button className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors">
+        <button className="flex items-center gap-2 px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors">
           <Plus className="w-4 h-4" />
           Add Template
         </button>

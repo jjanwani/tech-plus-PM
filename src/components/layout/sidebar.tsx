@@ -87,17 +87,26 @@ export function Sidebar({ profile }: SidebarProps) {
   return (
     <aside
       className={cn(
-        'flex flex-col bg-[#1e3a5f] text-white transition-all duration-200 flex-shrink-0',
+        'flex flex-col bg-[#00274c] text-white transition-all duration-200 flex-shrink-0',
         collapsed ? 'w-16' : 'w-60'
       )}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
-        {!collapsed && <Logo variant="light" className="scale-90 origin-left" />}
+        {!collapsed && (
+          <a href="https://www.techplusumich.org/" target="_blank" rel="noopener noreferrer">
+            <Logo variant="light" className="scale-90 origin-left" />
+          </a>
+        )}
         {collapsed && (
-          <div className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mx-auto font-display text-sm text-[#d6a419]">
+          <a
+            href="https://www.techplusumich.org/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-7 h-7 rounded-lg bg-white/20 flex items-center justify-center mx-auto font-display text-sm text-[#f1c100]"
+          >
             T+
-          </div>
+          </a>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}

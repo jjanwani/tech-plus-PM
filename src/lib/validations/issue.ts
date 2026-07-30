@@ -7,7 +7,6 @@ export const createIssueSchema = z.object({
   priority:     z.enum(['critical', 'high', 'medium', 'low']).default('medium'),
   status_id:    z.string().uuid(),
   assignee_id:  z.string().uuid().optional().nullable(),
-  sprint_id:    z.string().uuid().optional().nullable(),
   parent_id:    z.string().uuid().optional().nullable(),
   story_points: z.number().int().min(0).max(100).optional().nullable(),
   start_date:   z.string().date().optional().nullable(),

@@ -60,18 +60,18 @@ export function OrgRoadmapPanel({ scope, initialCheckpoints }: OrgRoadmapPanelPr
     }
   }
 
-  const inputClass = 'px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white'
+  const inputClass = 'px-2.5 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white'
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl p-4">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Milestone className="w-4 h-4 text-[#d6a419]" />
+          <Milestone className="w-4 h-4 text-[#f1c100]" />
           <h2 className="font-semibold text-gray-900 text-sm capitalize">{scope} Org Roadmap</h2>
         </div>
         <button
           onClick={() => setAdding((v) => !v)}
-          className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg border border-dashed border-gray-300 text-gray-500 hover:border-[#1e3a5f] hover:text-[#1e3a5f] transition-colors"
+          className="flex items-center gap-1 text-xs px-2 py-1 rounded-lg border border-dashed border-gray-300 text-gray-500 hover:border-[#00274c] hover:text-[#00274c] transition-colors"
         >
           {adding ? <X className="w-3 h-3" /> : <Plus className="w-3 h-3" />}
           {adding ? 'Cancel' : 'Add'}
@@ -92,7 +92,7 @@ export function OrgRoadmapPanel({ scope, initialCheckpoints }: OrgRoadmapPanelPr
             <button
               onClick={handleAdd}
               disabled={!title.trim() || !date || saving}
-              className="flex items-center gap-1 px-2.5 py-1.5 bg-[#1e3a5f] text-white rounded-lg text-xs font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-[#00274c] text-white rounded-lg text-xs font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
             >
               <Check className="w-3 h-3" />
               {saving ? 'Adding...' : 'Add'}

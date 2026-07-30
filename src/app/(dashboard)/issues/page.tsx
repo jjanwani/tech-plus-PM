@@ -80,7 +80,7 @@ export default async function IssuesPage({
     return `/issues${qs ? `?${qs}` : ''}`
   }
 
-  const selectClass = 'px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]'
+  const selectClass = 'px-3 py-2 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]'
 
   return (
     <div className="p-6">
@@ -102,7 +102,7 @@ export default async function IssuesPage({
             name="q"
             defaultValue={sp.q ?? ''}
             placeholder="Search issues..."
-            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+            className="w-full pl-9 pr-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]"
           />
         </div>
 
@@ -136,7 +136,7 @@ export default async function IssuesPage({
 
         <button
           type="submit"
-          className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+          className="flex items-center gap-2 px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors"
         >
           <Filter className="w-4 h-4" />
           Filter
@@ -187,7 +187,7 @@ export default async function IssuesPage({
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-mono text-gray-400 flex-shrink-0">{issue.issue_key}</span>
-                  <span className="text-sm text-gray-800 group-hover:text-[#1e3a5f] truncate">{issue.title}</span>
+                  <span className="text-sm text-gray-800 group-hover:text-[#00274c] truncate">{issue.title}</span>
                 </div>
               </div>
 
@@ -210,7 +210,7 @@ export default async function IssuesPage({
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={assignee.avatar_url} alt={assignee.full_name} className="w-5 h-5 rounded-full" />
                     ) : (
-                      <div className="w-5 h-5 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs">
+                      <div className="w-5 h-5 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs">
                         {assignee.full_name.charAt(0)}
                       </div>
                     )}

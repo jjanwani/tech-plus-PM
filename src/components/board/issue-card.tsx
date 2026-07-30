@@ -51,7 +51,7 @@ export function IssueCard({ issue, projectId, isDragOverlay = false }: IssueCard
       className={cn(
         'bg-white rounded-lg border border-gray-200 p-3 cursor-pointer hover:shadow-sm hover:border-gray-300 transition-all select-none',
         isDragging && 'opacity-40',
-        isDragOverlay && 'shadow-lg ring-2 ring-[#1e3a5f]/20 rotate-1'
+        isDragOverlay && 'shadow-lg ring-2 ring-[#00274c]/20 rotate-1'
       )}
     >
       {/* Labels */}
@@ -115,7 +115,7 @@ export function IssueCard({ issue, projectId, isDragOverlay = false }: IssueCard
             />
           ) : issue.assignee ? (
             <div
-              className="w-5 h-5 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs font-medium flex-shrink-0"
+              className="w-5 h-5 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs font-medium flex-shrink-0"
               title={issue.assignee.full_name}
             >
               {issue.assignee.full_name.charAt(0)}

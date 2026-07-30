@@ -23,7 +23,6 @@ export async function PresidentDashboard({ userId, fullName }: PresidentDashboar
   const [
     { data: highPriorityIssuesRaw },
     { data: favoriteRows },
-    { data: sprintsRaw },
     { data: deliverablesRaw },
     { data: internalCheckpointsRaw },
     { data: externalCheckpointsRaw },
@@ -36,11 +35,6 @@ export async function PresidentDashboard({ userId, fullName }: PresidentDashboar
       .order('priority', { ascending: true })
       .limit(15),
     supabase.from('favorites').select('item_type, item_id').eq('user_id', userId),
-    supabase
-      .from('sprints')
-      .select('id, name, end_date, project_id, project:projects(id,key,name)')
-      .eq('status', 'active')
-      .not('end_date', 'is', null),
     supabase
       .from('deliverables')
       .select('id, title, due_date, project_id, project:projects(id,key,name)')
@@ -69,29 +63,18 @@ export async function PresidentDashboard({ userId, fullName }: PresidentDashboar
   const favoriteTemplates = (favoriteTemplatesRaw ?? []) as unknown as Array<{ id: string; name: string; file_url: string; project_type: string | null }>
   const favoriteAdminFiles = (favoriteAdminFilesRaw ?? []) as unknown as Array<{ id: string; file_name: string; file_url: string | null; file_path: string | null; category: AdminFileCategory }>
 
-  const sprints = (sprintsRaw ?? []) as unknown as Array<{ id: string; name: string; end_date: string; project_id: string; project: ProjectRef | null }>
   const deliverables = (deliverablesRaw ?? []) as unknown as Array<{ id: string; title: string; due_date: string; project_id: string; project: ProjectRef | null }>
 
-  const events = [
-    ...sprints
-      .filter((s) => isDueSoon(s.end_date, 30))
-      .map((s) => ({
-        id: `sprint-${s.id}`,
-        label: `${s.name} ends`,
-        date: s.end_date,
-        href: `/projects/${s.project_id}/sprints`,
-        projectLabel: s.project?.key ?? '',
-      })),
-    ...deliverables
-      .filter((d) => isDueSoon(d.due_date, 30))
-      .map((d) => ({
-        id: `deliverable-${d.id}`,
-        label: d.title,
-        date: d.due_date,
-        href: `/projects/${d.project_id}/deliverables`,
-        projectLabel: d.project?.key ?? '',
-      })),
-  ].sort((a, b) => a.date.localeCompare(b.date))
+  const events = deliverables
+    .filter((d) => isDueSoon(d.due_date, 30))
+    .map((d) => ({
+      id: `deliverable-${d.id}`,
+      label: d.title,
+      date: d.due_date,
+      href: `/projects/${d.project_id}/files`,
+      projectLabel: d.project?.key ?? '',
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date))
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -138,7 +121,7 @@ export async function PresidentDashboard({ userId, fullName }: PresidentDashboar
         {/* Upcoming events */}
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-3">
-            <CalendarDays className="w-4 h-4 text-[#1e3a5f]" />
+            <CalendarDays className="w-4 h-4 text-[#00274c]" />
             <h2 className="font-semibold text-gray-900 text-sm">Upcoming Events</h2>
           </div>
           {events.length === 0 && <p className="text-sm text-gray-400 py-4 text-center">Nothing in the next 30 days.</p>}
@@ -167,7 +150,7 @@ export async function PresidentDashboard({ userId, fullName }: PresidentDashboar
           </div>
           {favoriteTemplates.length === 0 && (
             <p className="text-sm text-gray-400 py-4 text-center">
-              Star a template from the <Link href="/templates" className="text-[#1e3a5f] hover:underline">Templates page</Link> to pin it here.
+              Star a template from the <Link href="/templates" className="text-[#00274c] hover:underline">Templates page</Link> to pin it here.
             </p>
           )}
           <div className="divide-y divide-gray-50">

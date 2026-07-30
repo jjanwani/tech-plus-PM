@@ -26,7 +26,7 @@ export function AssignmentNotificationEmail({
       <Preview>{assignedByName} assigned you to {issueKey}</Preview>
       <Body style={{ fontFamily: 'Arial, sans-serif', backgroundColor: '#f9fafb' }}>
         <Container style={{ maxWidth: '560px', margin: '40px auto', padding: '24px', backgroundColor: '#fff', borderRadius: '8px' }}>
-          <Heading style={{ color: '#1e3a5f', fontSize: '20px' }}>
+          <Heading style={{ color: '#00274c', fontSize: '20px' }}>
             You've been assigned an issue
           </Heading>
           <Text style={{ color: '#374151' }}>
@@ -39,7 +39,7 @@ export function AssignmentNotificationEmail({
           </Text>
           <Button
             href={issueUrl}
-            style={{ backgroundColor: '#1e3a5f', color: '#fff', padding: '12px 24px', borderRadius: '6px', marginTop: '16px', display: 'inline-block', textDecoration: 'none' }}
+            style={{ backgroundColor: '#00274c', color: '#fff', padding: '12px 24px', borderRadius: '6px', marginTop: '16px', display: 'inline-block', textDecoration: 'none' }}
           >
             View Issue
           </Button>

@@ -37,7 +37,7 @@ export default async function ClientsPage() {
     <div className="flex flex-col h-full overflow-hidden">
       <div className="px-6 pt-6">
         <div className="flex items-center gap-2 mb-2">
-          <Briefcase className="w-5 h-5 text-[#1e3a5f]" />
+          <Briefcase className="w-5 h-5 text-[#00274c]" />
           <h1 className="text-xl font-bold text-gray-900">Client Applications</h1>
         </div>
         <p className="text-sm text-gray-500">

@@ -38,11 +38,6 @@ function humanizeAction(entry: ActivityEntry, statuses: IssueStatus[], members: 
     case 'priority_change': {
       return `changed priority to ${new_value?.priority ?? '—'}`
     }
-    case 'sprint_change': {
-      return new_value?.sprint_id
-        ? `moved to sprint`
-        : 'moved to backlog'
-    }
     case 'title_change': {
       return `renamed issue`
     }

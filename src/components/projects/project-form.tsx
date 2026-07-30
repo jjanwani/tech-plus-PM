@@ -89,7 +89,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
                 onChange: handleNameChange,
               })}
               className={cn(
-                'w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]',
+                'w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]',
                 errors.name ? 'border-red-300' : 'border-gray-200'
               )}
               placeholder="e.g. Q1 Strategy Analysis"
@@ -102,7 +102,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
             <input
               {...register('key')}
               className={cn(
-                'w-full px-3 py-2 border rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]',
+                'w-full px-3 py-2 border rounded-lg text-sm font-mono uppercase focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]',
                 errors.key ? 'border-red-300' : 'border-gray-200'
               )}
               placeholder="e.g. PROJ"
@@ -116,7 +116,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
             <select
               {...register('type')}
               className={cn(
-                'w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white',
+                'w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white',
                 errors.type ? 'border-red-300' : 'border-gray-200'
               )}
             >
@@ -131,7 +131,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
           <textarea
             {...register('description')}
             rows={3}
-            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] resize-none"
+            className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] resize-none"
             placeholder="Brief project description..."
           />
         </div>
@@ -143,7 +143,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
           <input
             {...register('client_name')}
             className={cn(
-              'w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]',
+              'w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]',
               errors.client_name ? 'border-red-300' : 'border-gray-200'
             )}
             placeholder={projectType === 'internal' ? 'Tech Plus Consulting (optional)' : 'e.g. Acme Corp'}
@@ -156,7 +156,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">Term</label>
             <select
               {...register('term')}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white"
             >
               <option value="fall">Fall</option>
               <option value="winter">Winter</option>
@@ -167,7 +167,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
             <input
               type="number"
               {...register('year', { valueAsNumber: true })}
-              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]"
+              className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]"
               placeholder="e.g. 2025"
             />
             {errors.year && <p className="text-xs text-red-500 mt-1">{errors.year.message}</p>}
@@ -178,7 +178,7 @@ export function ProjectForm({ project }: ProjectFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-5 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-5 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? 'Saving...' : isEditing ? 'Save Changes' : 'Create Project'}
           </button>

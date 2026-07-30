@@ -55,7 +55,7 @@ export default async function AdminFileCategoryPage({
   return (
     <div className="p-6">
       <div className="flex items-center gap-2 mb-2">
-        <Folder className="w-5 h-5 text-[#1e3a5f]" />
+        <Folder className="w-5 h-5 text-[#00274c]" />
         <h1 className="text-xl font-bold text-gray-900">{ADMIN_FILE_CATEGORY_LABELS[typedCategory]}</h1>
       </div>
       <p className="text-sm text-gray-500 mb-6">

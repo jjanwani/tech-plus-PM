@@ -58,7 +58,7 @@ export function AssigneePicker({ members, value, onChange }: AssigneePickerProps
                 className="w-5 h-5 rounded-full flex-shrink-0"
               />
             ) : (
-              <div className="w-5 h-5 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs flex-shrink-0">
+              <div className="w-5 h-5 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs flex-shrink-0">
                 {getInitials(selected.profile.full_name)}
               </div>
             )}
@@ -81,7 +81,7 @@ export function AssigneePicker({ members, value, onChange }: AssigneePickerProps
             onClick={() => handleSelect(null)}
             className={cn(
               'w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors',
-              value === null && 'bg-[#1e3a5f]/5'
+              value === null && 'bg-[#00274c]/5'
             )}
           >
             <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
@@ -103,7 +103,7 @@ export function AssigneePicker({ members, value, onChange }: AssigneePickerProps
                 onClick={() => handleSelect(m.user_id)}
                 className={cn(
                   'w-full flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-50 transition-colors',
-                  value === m.user_id && 'bg-[#1e3a5f]/5'
+                  value === m.user_id && 'bg-[#00274c]/5'
                 )}
               >
                 {profile.avatar_url ? (
@@ -114,7 +114,7 @@ export function AssigneePicker({ members, value, onChange }: AssigneePickerProps
                     className="w-6 h-6 rounded-full flex-shrink-0"
                   />
                 ) : (
-                  <div className="w-6 h-6 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs flex-shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs flex-shrink-0">
                     {getInitials(profile.full_name)}
                   </div>
                 )}

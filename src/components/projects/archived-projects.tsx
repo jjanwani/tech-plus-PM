@@ -86,7 +86,7 @@ function ArchivedProjectCard({ project }: { project: ProjectSummary }) {
         type="button"
         onClick={handleUnarchive}
         disabled={unarchiving}
-        className="absolute top-3 right-3 p-1.5 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-[#1e3a5f] hover:border-[#1e3a5f]/30 transition-colors disabled:opacity-50"
+        className="absolute top-3 right-3 p-1.5 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-[#00274c] hover:border-[#00274c]/30 transition-colors disabled:opacity-50"
         title="Restore project"
       >
         <ArchiveRestore className="w-3.5 h-3.5" />

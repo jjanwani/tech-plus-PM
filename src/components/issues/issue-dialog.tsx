@@ -6,13 +6,12 @@ import { X } from 'lucide-react'
 import { toast } from 'sonner'
 import { createIssueSchema, type CreateIssueInput } from '@/lib/validations/issue'
 import { cn } from '@/lib/utils/cn'
-import type { Issue, IssueStatus, ProjectMember, Sprint, Label } from '@/types'
+import type { Issue, IssueStatus, ProjectMember, Label } from '@/types'
 
 interface IssueDialogProps {
   projectId: string
   statuses: IssueStatus[]
   members: ProjectMember[]
-  sprints: Sprint[]
   labels: Label[]
   defaultValues?: Partial<Issue>
   onClose: () => void
@@ -23,7 +22,6 @@ export function IssueDialog({
   projectId,
   statuses,
   members,
-  sprints,
   labels,
   defaultValues,
   onClose,
@@ -36,8 +34,8 @@ export function IssueDialog({
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } = useForm<CreateIssueInput>({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(createIssueSchema) as any,
     defaultValues: {
       title: defaultValues?.title ?? '',
@@ -46,7 +44,6 @@ export function IssueDialog({
       priority: defaultValues?.priority ?? 'medium',
       status_id: defaultValues?.status_id ?? defaultStatus?.id ?? '',
       assignee_id: defaultValues?.assignee_id ?? null,
-      sprint_id: defaultValues?.sprint_id ?? null,
       story_points: defaultValues?.story_points ?? null,
       start_date: defaultValues?.start_date ?? null,
       due_date: defaultValues?.due_date ?? null,
@@ -75,7 +72,7 @@ export function IssueDialog({
 
   const inputClass = (hasError?: boolean) =>
     cn(
-      'w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white',
+      'w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white',
       hasError ? 'border-red-300' : 'border-gray-200'
     )
 
@@ -178,45 +175,24 @@ export function IssueDialog({
               </div>
             </div>
 
-            {/* Row: sprint + story points */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Sprint</label>
-                <Controller
-                  control={control}
-                  name="sprint_id"
-                  render={({ field }) => (
-                    <select
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value || null)}
-                      className={inputClass()}
-                    >
-                      <option value="">No Sprint</option>
-                      {sprints.map((s) => (
-                        <option key={s.id} value={s.id}>{s.name}</option>
-                      ))}
-                    </select>
-                  )}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Story Points</label>
-                <Controller
-                  control={control}
-                  name="story_points"
-                  render={({ field }) => (
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={field.value ?? ''}
-                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
-                      className={inputClass()}
-                      placeholder="0"
-                    />
-                  )}
-                />
-              </div>
+            {/* Story points */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Story Points</label>
+              <Controller
+                control={control}
+                name="story_points"
+                render={({ field }) => (
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={field.value ?? ''}
+                    onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : null)}
+                    className={inputClass()}
+                    placeholder="0"
+                  />
+                )}
+              />
             </div>
 
             {/* Row: dates */}
@@ -307,7 +283,7 @@ export function IssueDialog({
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+              className="px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
             >
               {isSubmitting ? 'Creating...' : 'Create Issue'}
             </button>

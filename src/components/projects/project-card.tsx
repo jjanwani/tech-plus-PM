@@ -1,7 +1,6 @@
 import Link from 'next/link'
-import { Users, CheckSquare, Clock } from 'lucide-react'
+import { Users, CheckSquare } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
-import { timeAgo } from '@/lib/utils/date'
 import { semesterCode, type ProjectSummary } from '@/types'
 
 interface ProjectCardProps {
@@ -12,7 +11,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   return (
     <Link
       href={`/projects/${project.id}`}
-      className="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-[#1e3a5f]/30 transition-all"
+      className="block bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-[#00274c]/30 transition-all"
     >
       <div className="flex items-start justify-between gap-2 mb-3">
         <div>
@@ -49,12 +48,6 @@ export function ProjectCard({ project }: ProjectCardProps) {
           <Users className="w-3.5 h-3.5" />
           <span>{project.member_count} members</span>
         </div>
-        {project.current_sprint_end && (
-          <div className="flex items-center gap-1 ml-auto">
-            <Clock className="w-3.5 h-3.5" />
-            <span>Sprint ends {timeAgo(project.current_sprint_end)}</span>
-          </div>
-        )}
       </div>
     </Link>
   )

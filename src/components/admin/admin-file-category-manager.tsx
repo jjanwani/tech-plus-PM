@@ -109,7 +109,7 @@ export function AdminFileCategoryManager({ category, initialFiles, canManage, fa
     }
   }
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]'
+  const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]'
 
   function renderDoc(doc: AdminFile) {
     const openUrl = doc.file_path ? doc.signed_url : doc.file_url
@@ -181,7 +181,7 @@ export function AdminFileCategoryManager({ category, initialFiles, canManage, fa
           <button
             type="button"
             onClick={() => setShowForm((v) => !v)}
-            className="flex items-center gap-1.5 px-3 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors"
           >
             {showForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showForm ? 'Cancel' : 'Add Document'}
@@ -197,7 +197,7 @@ export function AdminFileCategoryManager({ category, initialFiles, canManage, fa
               onClick={() => setMode('link')}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-                mode === 'link' ? 'bg-[#1e3a5f] text-white' : 'text-gray-500 hover:text-gray-700'
+                mode === 'link' ? 'bg-[#00274c] text-white' : 'text-gray-500 hover:text-gray-700'
               )}
             >
               <Link2 className="w-3.5 h-3.5" />
@@ -208,7 +208,7 @@ export function AdminFileCategoryManager({ category, initialFiles, canManage, fa
               onClick={() => setMode('upload')}
               className={cn(
                 'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-                mode === 'upload' ? 'bg-[#1e3a5f] text-white' : 'text-gray-500 hover:text-gray-700'
+                mode === 'upload' ? 'bg-[#00274c] text-white' : 'text-gray-500 hover:text-gray-700'
               )}
             >
               <Upload className="w-3.5 h-3.5" />
@@ -246,7 +246,7 @@ export function AdminFileCategoryManager({ category, initialFiles, canManage, fa
           <button
             type="submit"
             disabled={!title.trim() || (mode === 'link' ? !url.trim() : !file) || submitting}
-            className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
           >
             {mode === 'link' ? <Link2 className="w-4 h-4" /> : <Upload className="w-4 h-4" />}
             {submitting ? 'Adding...' : 'Add Document'}

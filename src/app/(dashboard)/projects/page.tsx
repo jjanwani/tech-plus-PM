@@ -49,7 +49,7 @@ export default async function ProjectsPage() {
         {canCreate && (
           <Link
             href="/projects/new"
-            className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors"
           >
             <Plus className="w-4 h-4" />
             New Project
@@ -61,7 +61,7 @@ export default async function ProjectsPage() {
         <div className="text-center py-16">
           <p className="text-gray-400 text-lg">No projects yet.</p>
           {canCreate && (
-            <Link href="/projects/new" className="mt-4 inline-block text-[#1e3a5f] hover:underline font-medium">
+            <Link href="/projects/new" className="mt-4 inline-block text-[#00274c] hover:underline font-medium">
               Create your first project
             </Link>
           )}

@@ -101,7 +101,7 @@ export function AttachmentList({ issueId, initialAttachments, currentUserId }: A
           type="button"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
-          className="flex items-center gap-1 px-2 py-1 rounded text-xs text-[#1e3a5f] hover:bg-[#1e3a5f]/5 transition-colors font-medium"
+          className="flex items-center gap-1 px-2 py-1 rounded text-xs text-[#00274c] hover:bg-[#00274c]/5 transition-colors font-medium"
         >
           <Upload className="w-3 h-3" />
           Upload
@@ -123,7 +123,7 @@ export function AttachmentList({ issueId, initialAttachments, currentUserId }: A
           </div>
           <div className="h-1 bg-gray-200 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#1e3a5f] rounded-full transition-all duration-150"
+              className="h-full bg-[#00274c] rounded-full transition-all duration-150"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>

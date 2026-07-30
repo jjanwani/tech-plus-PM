@@ -19,7 +19,7 @@ export function TemplateForm({ onCreated }: TemplateFormProps) {
   const [loading, setLoading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f] bg-white'
+  const inputClass = 'w-full px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c] bg-white'
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -122,7 +122,7 @@ export function TemplateForm({ onCreated }: TemplateFormProps) {
             onClick={() => setMode('link')}
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-              mode === 'link' ? 'bg-[#1e3a5f] text-white' : 'text-gray-500 hover:text-gray-700'
+              mode === 'link' ? 'bg-[#00274c] text-white' : 'text-gray-500 hover:text-gray-700'
             )}
           >
             <Link2 className="w-3.5 h-3.5" />
@@ -133,7 +133,7 @@ export function TemplateForm({ onCreated }: TemplateFormProps) {
             onClick={() => setMode('upload')}
             className={cn(
               'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors',
-              mode === 'upload' ? 'bg-[#1e3a5f] text-white' : 'text-gray-500 hover:text-gray-700'
+              mode === 'upload' ? 'bg-[#00274c] text-white' : 'text-gray-500 hover:text-gray-700'
             )}
           >
             <Upload className="w-3.5 h-3.5" />
@@ -162,14 +162,14 @@ export function TemplateForm({ onCreated }: TemplateFormProps) {
             className={cn(
               'flex flex-col items-center justify-center gap-2 p-4 border-2 border-dashed rounded-xl cursor-pointer transition-colors',
               file
-                ? 'border-[#1e3a5f] bg-[#1e3a5f]/5'
+                ? 'border-[#00274c] bg-[#00274c]/5'
                 : 'border-gray-200 hover:border-gray-300 bg-gray-50 hover:bg-gray-100'
             )}
           >
             {file ? (
               <>
-                <FileText className="w-6 h-6 text-[#1e3a5f]" />
-                <p className="text-sm font-medium text-[#1e3a5f]">{file.name}</p>
+                <FileText className="w-6 h-6 text-[#00274c]" />
+                <p className="text-sm font-medium text-[#00274c]">{file.name}</p>
                 <p className="text-xs text-gray-500">{(file.size / 1024).toFixed(1)} KB</p>
               </>
             ) : (
@@ -194,7 +194,7 @@ export function TemplateForm({ onCreated }: TemplateFormProps) {
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+          className="px-5 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
         >
           {loading ? (mode === 'link' ? 'Adding...' : 'Uploading...') : 'Create Template'}
         </button>

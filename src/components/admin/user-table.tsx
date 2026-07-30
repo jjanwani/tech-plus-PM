@@ -140,7 +140,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
     }
   }
 
-  const inputClass = 'px-2 py-1 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#1e3a5f]/20 focus:border-[#1e3a5f]'
+  const inputClass = 'px-2 py-1 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]'
 
   return (
     <div>
@@ -148,7 +148,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
         <p className="text-sm text-gray-500">{users.length} user{users.length !== 1 ? 's' : ''}</p>
         <button
           onClick={() => setShowInvite((v) => !v)}
-          className="flex items-center gap-2 px-3 py-1.5 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] transition-colors"
+          className="flex items-center gap-2 px-3 py-1.5 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] transition-colors"
         >
           {showInvite ? <X className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
           {showInvite ? 'Cancel' : 'Add User'}
@@ -192,7 +192,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
           <button
             onClick={handleInvite}
             disabled={!inviteEmail.trim() || inviting}
-            className="flex items-center gap-2 px-4 py-2 bg-[#1e3a5f] text-white rounded-lg text-sm font-medium hover:bg-[#2d5a8e] disabled:opacity-50 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-[#00274c] text-white rounded-lg text-sm font-medium hover:bg-[#15345c] disabled:opacity-50 transition-colors"
           >
             <UserPlus className="w-4 h-4" />
             {inviting ? 'Adding...' : 'Add User'}
@@ -222,7 +222,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={user.avatar_url} alt={user.full_name} className="w-7 h-7 rounded-full flex-shrink-0" />
                     ) : (
-                      <div className="w-7 h-7 rounded-full bg-[#1e3a5f] text-white flex items-center justify-center text-xs flex-shrink-0">
+                      <div className="w-7 h-7 rounded-full bg-[#00274c] text-white flex items-center justify-center text-xs flex-shrink-0">
                         {getInitials(user.full_name)}
                       </div>
                     )}
@@ -253,7 +253,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
                     onClick={() => handleField(user.id, 'is_admin', !user.is_admin)}
                     className={cn(
                       'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none',
-                      user.is_admin ? 'bg-[#1e3a5f]' : 'bg-gray-200'
+                      user.is_admin ? 'bg-[#00274c]' : 'bg-gray-200'
                     )}
                   >
                     <span
@@ -272,7 +272,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
                     onClick={() => handleField(user.id, 'is_active', !user.is_active)}
                     className={cn(
                       'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none',
-                      user.is_active ? 'bg-[#1e3a5f]' : 'bg-gray-200'
+                      user.is_active ? 'bg-[#00274c]' : 'bg-gray-200'
                     )}
                   >
                     <span
@@ -293,7 +293,7 @@ export function UserTable({ initialUsers, initialPendingInvites }: UserTableProp
                       className={cn(
                         'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium transition-colors',
                         user.dirty
-                          ? 'bg-[#1e3a5f] text-white hover:bg-[#2d5a8e]'
+                          ? 'bg-[#00274c] text-white hover:bg-[#15345c]'
                           : 'bg-gray-100 text-gray-400 cursor-default'
                       )}
                     >

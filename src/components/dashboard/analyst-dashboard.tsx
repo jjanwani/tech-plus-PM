@@ -65,7 +65,7 @@ export async function AnalystDashboard({ userId, fullName }: AnalystDashboardPro
       id: d.id,
       title: d.title,
       due_date: d.due_date,
-      href: `/projects/${d.project_id}/deliverables`,
+      href: `/projects/${d.project_id}/files`,
       projectLabel: d.project?.key ?? '',
     })),
   ]
@@ -145,7 +145,7 @@ export async function AnalystDashboard({ userId, fullName }: AnalystDashboardPro
 
         <div className="bg-white border border-gray-200 rounded-xl p-4">
           <div className="flex items-center gap-2 mb-1">
-            <ListTodo className="w-4 h-4 text-[#1e3a5f]" />
+            <ListTodo className="w-4 h-4 text-[#00274c]" />
             <h2 className="font-semibold text-gray-900 text-sm">To-Do</h2>
           </div>
           {renderList(todo, 'You’re all caught up.')}
@@ -154,7 +154,7 @@ export async function AnalystDashboard({ userId, fullName }: AnalystDashboardPro
 
       <div className="bg-white border border-gray-200 rounded-xl p-5">
         <div className="flex items-center gap-2 mb-4">
-          <Map className="w-4 h-4 text-[#1e3a5f]" />
+          <Map className="w-4 h-4 text-[#00274c]" />
           <h2 className="font-semibold text-gray-900 text-sm">My Projects</h2>
         </div>
         {projects.length === 0 && <p className="text-sm text-gray-400">You&apos;re not on any projects yet.</p>}
@@ -170,7 +170,7 @@ export async function AnalystDashboard({ userId, fullName }: AnalystDashboardPro
                 </div>
                 <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-[#1e3a5f] rounded-full transition-all"
+                    className="h-full bg-[#00274c] rounded-full transition-all"
                     style={{ width: `${pct}%` }}
                   />
                 </div>
