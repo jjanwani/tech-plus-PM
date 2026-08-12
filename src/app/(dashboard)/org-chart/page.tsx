@@ -21,8 +21,8 @@ interface MemberRow {
 
 // Target structure: 4 consulting managers per VP side, two overseeing 2
 // projects and two overseeing 3; every project gets 5 analysts. Real
-// assignments fill these slots first; anything unfilled shows as an
-// "Unassigned" placeholder so the intended structure is always visible.
+// assignments fill these slots first; any slots left over collapse into a
+// single "N Unassigned" placeholder rather than one box per empty slot.
 const CM_SLOT_PROJECT_TARGETS = [2, 2, 3, 3]
 const ANALYSTS_PER_PROJECT_TARGET = 5
 
@@ -32,8 +32,8 @@ function nextId() {
   return `node-${nodeCounter}`
 }
 
-function placeholderNode(title: string): OrgNode {
-  return { id: nextId(), title, subtitle: 'Unassigned', profile: null, children: [] }
+function placeholderNode(title: string, count = 1): OrgNode {
+  return { id: nextId(), title, subtitle: count > 1 ? `${count} Unassigned` : 'Unassigned', profile: null, children: [] }
 }
 
 function personNode(title: string, profile: Profile): OrgNode {
@@ -46,6 +46,16 @@ function seatNode(title: string, people: Profile[]): OrgNode {
     ...personNode(title, people[0]),
     children: people.slice(1).map((p) => personNode(title, p)),
   }
+}
+
+// Real entries each get their own connected box; anything left over to
+// reach `target` collapses into one combined placeholder box instead of
+// fanning out a box per empty slot.
+function fillSlots<T>(title: string, real: T[], target: number, toNode: (item: T) => OrgNode): OrgNode[] {
+  const nodes = real.map(toNode)
+  const missing = Math.max(0, target - real.length)
+  if (missing > 0) nodes.push(placeholderNode(title, missing))
+  return nodes
 }
 
 export default async function OrgChartPage() {
@@ -64,9 +74,9 @@ export default async function OrgChartPage() {
   const members = ((membersRaw ?? []) as unknown as MemberRow[]).filter((m) => m.project && !m.project.is_archived)
 
   const president = allProfiles.filter((p) => p.role === 'president')
-  const vpExternal = allProfiles.filter((p) => p.role === 'vp_external')
-  const vpInternal = allProfiles.filter((p) => p.role === 'vp_internal')
-  const vpOperations = allProfiles.filter((p) => p.role === 'vp_operations')
+  const vpExternalPeople = allProfiles.filter((p) => p.role === 'vp_external')
+  const vpInternalPeople = allProfiles.filter((p) => p.role === 'vp_internal')
+  const vpOperationsPeople = allProfiles.filter((p) => p.role === 'vp_operations')
 
   function buildProjectNode(project: ProjectRef): OrgNode {
     const projectMembers = members.filter((m) => m.project?.id === project.id)
@@ -77,26 +87,13 @@ export default async function OrgChartPage() {
       .filter((p): p is Profile => Boolean(p))
 
     const pmNode = seatNode('Project Manager', pm)
-    const analystNodes = analysts.map((a) => personNode('Analyst', a))
-    for (let i = analystNodes.length; i < ANALYSTS_PER_PROJECT_TARGET; i++) {
-      analystNodes.push(placeholderNode('Analyst'))
-    }
-    pmNode.children = analystNodes
+    pmNode.children = fillSlots('Analyst', analysts, ANALYSTS_PER_PROJECT_TARGET, (a) => personNode('Analyst', a))
 
     return { id: nextId(), title: project.name, subtitle: project.key, profile: null, children: [pmNode] }
   }
 
-  function buildPlaceholderProjectNode(): OrgNode {
-    const pmNode = placeholderNode('Project Manager')
-    pmNode.children = Array.from({ length: ANALYSTS_PER_PROJECT_TARGET }, () => placeholderNode('Analyst'))
-    return { id: nextId(), title: 'Project', subtitle: 'Unassigned', profile: null, children: [pmNode] }
-  }
-
   function buildCmNode(profile: Profile | null, realProjects: ProjectRef[], target: number): OrgNode {
-    const projectNodes = realProjects.map((p) => buildProjectNode(p))
-    for (let i = projectNodes.length; i < target; i++) {
-      projectNodes.push(buildPlaceholderProjectNode())
-    }
+    const projectNodes = fillSlots('Project', realProjects, target, (p) => buildProjectNode(p))
     return profile
       ? { ...personNode('Consulting Manager', profile), children: projectNodes }
       : { ...placeholderNode('Consulting Manager'), children: projectNodes }
@@ -120,32 +117,36 @@ export default async function OrgChartPage() {
     for (let i = 0; i < slotCount; i++) {
       const target = CM_SLOT_PROJECT_TARGETS[i] ?? CM_SLOT_PROJECT_TARGETS[CM_SLOT_PROJECT_TARGETS.length - 1]
       const real = realCms[i]
-      cmNodes.push(buildCmNode(real?.profile ?? null, real?.projects ?? [], target))
+      if (real) {
+        cmNodes.push(buildCmNode(real.profile, real.projects, target))
+      }
     }
+    const missingCms = Math.max(0, CM_SLOT_PROJECT_TARGETS.length - realCms.length)
+    if (missingCms > 0) cmNodes.push(placeholderNode('Consulting Manager', missingCms))
 
     vpNode.children = cmNodes
     return vpNode
   }
 
   const presidentNode = seatNode('President', president)
-  presidentNode.children = [
-    buildVpBranch('VP External', vpExternal, 'external'),
-    buildVpBranch('VP Internal', vpInternal, 'internal'),
-    seatNode('VP Operations', vpOperations),
-  ]
+  const vpExternal = buildVpBranch('VP External', vpExternalPeople, 'external')
+  const vpInternal = buildVpBranch('VP Internal', vpInternalPeople, 'internal')
+  const vpOperations = seatNode('VP Operations', vpOperationsPeople)
 
   return (
-    <div className="p-6">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="p-6 flex flex-col h-[calc(100vh-4rem)]">
+      <div className="flex items-center gap-2 mb-2 flex-shrink-0">
         <Network className="w-5 h-5 text-[#00274c]" />
         <h1 className="text-xl font-bold text-gray-900">Org Chart</h1>
       </div>
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm text-gray-500 mb-6 flex-shrink-0">
         Click on anyone to see their info. Shows the full intended structure — real assignments fill in
         automatically, everything else shows as Unassigned until someone&apos;s added.
       </p>
 
-      <OrgChartTree root={presidentNode} />
+      <div className="flex-1 min-h-0">
+        <OrgChartTree president={presidentNode} vpExternal={vpExternal} vpInternal={vpInternal} vpOperations={vpOperations} />
+      </div>
     </div>
   )
 }
