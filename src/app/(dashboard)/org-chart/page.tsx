@@ -21,8 +21,9 @@ interface MemberRow {
 
 // Target structure: 4 consulting managers per VP side, two overseeing 2
 // projects and two overseeing 3; every project gets 5 analysts. Real
-// assignments fill these slots first; any slots left over collapse into a
-// single "N Unassigned" placeholder rather than one box per empty slot.
+// assignments fill these slots first; every remaining slot still gets its
+// own placeholder box (and its own placeholder Project/PM/Analyst
+// structure beneath it) so the full intended org shows up every level deep.
 const CM_SLOT_PROJECT_TARGETS = [2, 2, 3, 3]
 const ANALYSTS_PER_PROJECT_TARGET = 5
 
@@ -32,8 +33,8 @@ function nextId() {
   return `node-${nodeCounter}`
 }
 
-function placeholderNode(title: string, count = 1): OrgNode {
-  return { id: nextId(), title, subtitle: count > 1 ? `${count} Unassigned` : 'Unassigned', profile: null, children: [] }
+function placeholderNode(title: string): OrgNode {
+  return { id: nextId(), title, subtitle: 'Unassigned', profile: null, children: [] }
 }
 
 function personNode(title: string, profile: Profile): OrgNode {
@@ -49,12 +50,11 @@ function seatNode(title: string, people: Profile[]): OrgNode {
 }
 
 // Real entries each get their own connected box; anything left over to
-// reach `target` collapses into one combined placeholder box instead of
-// fanning out a box per empty slot.
+// reach `target` gets its own individual placeholder box too.
 function fillSlots<T>(title: string, real: T[], target: number, toNode: (item: T) => OrgNode): OrgNode[] {
   const nodes = real.map(toNode)
   const missing = Math.max(0, target - real.length)
-  if (missing > 0) nodes.push(placeholderNode(title, missing))
+  for (let i = 0; i < missing; i++) nodes.push(placeholderNode(title))
   return nodes
 }
 
@@ -117,12 +117,8 @@ export default async function OrgChartPage() {
     for (let i = 0; i < slotCount; i++) {
       const target = CM_SLOT_PROJECT_TARGETS[i] ?? CM_SLOT_PROJECT_TARGETS[CM_SLOT_PROJECT_TARGETS.length - 1]
       const real = realCms[i]
-      if (real) {
-        cmNodes.push(buildCmNode(real.profile, real.projects, target))
-      }
+      cmNodes.push(buildCmNode(real?.profile ?? null, real?.projects ?? [], target))
     }
-    const missingCms = Math.max(0, CM_SLOT_PROJECT_TARGETS.length - realCms.length)
-    if (missingCms > 0) cmNodes.push(placeholderNode('Consulting Manager', missingCms))
 
     vpNode.children = cmNodes
     return vpNode
