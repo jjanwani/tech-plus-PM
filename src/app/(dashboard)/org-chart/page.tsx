@@ -4,12 +4,27 @@ import { getSupabaseServerClient } from '@/lib/supabase/server'
 import { OrgChartTree, type OrgNode } from '@/components/org-chart/org-chart-tree'
 import type { Profile, ProjectType } from '@/types'
 
+interface ProjectRef {
+  id: string
+  key: string
+  name: string
+  type: ProjectType
+  is_archived: boolean
+}
+
 interface MemberRow {
   user_id: string
   role: string
-  project: { id: string; key: string; name: string; type: ProjectType; is_archived: boolean } | null
+  project: ProjectRef | null
   profile: Profile | null
 }
+
+// Target structure: 4 consulting managers per VP side, two overseeing 2
+// projects and two overseeing 3; every project gets 5 analysts. Real
+// assignments fill these slots first; anything unfilled shows as an
+// "Unassigned" placeholder so the intended structure is always visible.
+const CM_SLOT_PROJECT_TARGETS = [2, 2, 3, 3]
+const ANALYSTS_PER_PROJECT_TARGET = 5
 
 let nodeCounter = 0
 function nextId() {
@@ -17,16 +32,19 @@ function nextId() {
   return `node-${nodeCounter}`
 }
 
+function placeholderNode(title: string): OrgNode {
+  return { id: nextId(), title, subtitle: 'Unassigned', profile: null, children: [] }
+}
+
+function personNode(title: string, profile: Profile): OrgNode {
+  return { id: nextId(), title, subtitle: profile.full_name, profile, children: [] }
+}
+
 function seatNode(title: string, people: Profile[]): OrgNode {
-  if (people.length === 0) {
-    return { id: nextId(), title, subtitle: 'Unassigned', profile: null, children: [] }
-  }
+  if (people.length === 0) return placeholderNode(title)
   return {
-    id: nextId(),
-    title,
-    subtitle: people[0].full_name,
-    profile: people[0],
-    children: people.slice(1).map((p) => ({ id: nextId(), title, subtitle: p.full_name, profile: p, children: [] })),
+    ...personNode(title, people[0]),
+    children: people.slice(1).map((p) => personNode(title, p)),
   }
 }
 
@@ -50,50 +68,63 @@ export default async function OrgChartPage() {
   const vpInternal = allProfiles.filter((p) => p.role === 'vp_internal')
   const vpOperations = allProfiles.filter((p) => p.role === 'vp_operations')
 
+  function buildProjectNode(project: ProjectRef): OrgNode {
+    const projectMembers = members.filter((m) => m.project?.id === project.id)
+    const pm = projectMembers.filter((m) => m.role === 'project_manager').map((m) => m.profile).filter((p): p is Profile => Boolean(p))
+    const analysts = projectMembers
+      .filter((m) => m.role === 'new_analyst' || m.role === 'senior_analyst')
+      .map((m) => m.profile)
+      .filter((p): p is Profile => Boolean(p))
+
+    const pmNode = seatNode('Project Manager', pm)
+    const analystNodes = analysts.map((a) => personNode('Analyst', a))
+    for (let i = analystNodes.length; i < ANALYSTS_PER_PROJECT_TARGET; i++) {
+      analystNodes.push(placeholderNode('Analyst'))
+    }
+    pmNode.children = analystNodes
+
+    return { id: nextId(), title: project.name, subtitle: project.key, profile: null, children: [pmNode] }
+  }
+
+  function buildPlaceholderProjectNode(): OrgNode {
+    const pmNode = placeholderNode('Project Manager')
+    pmNode.children = Array.from({ length: ANALYSTS_PER_PROJECT_TARGET }, () => placeholderNode('Analyst'))
+    return { id: nextId(), title: 'Project', subtitle: 'Unassigned', profile: null, children: [pmNode] }
+  }
+
+  function buildCmNode(profile: Profile | null, realProjects: ProjectRef[], target: number): OrgNode {
+    const projectNodes = realProjects.map((p) => buildProjectNode(p))
+    for (let i = projectNodes.length; i < target; i++) {
+      projectNodes.push(buildPlaceholderProjectNode())
+    }
+    return profile
+      ? { ...personNode('Consulting Manager', profile), children: projectNodes }
+      : { ...placeholderNode('Consulting Manager'), children: projectNodes }
+  }
+
   function buildVpBranch(title: string, vpPeople: Profile[], projectType: ProjectType): OrgNode {
     const vpNode = seatNode(title, vpPeople)
 
-    const cmMemberships = members.filter((m) => m.role === 'consulting_manager' && m.project?.type === projectType)
-    const cmByUser = new Map<string, { profile: Profile | null; projects: MemberRow['project'][] }>()
-    for (const m of cmMemberships) {
+    const cmByUser = new Map<string, { profile: Profile; projects: ProjectRef[] }>()
+    for (const m of members) {
+      if (m.role !== 'consulting_manager' || m.project?.type !== projectType || !m.profile) continue
       const existing = cmByUser.get(m.user_id) ?? { profile: m.profile, projects: [] }
       existing.projects.push(m.project)
       cmByUser.set(m.user_id, existing)
     }
 
-    const cmNodes: OrgNode[] = Array.from(cmByUser.entries()).map(([, { profile, projects }]) => {
-      const cmNode: OrgNode = {
-        id: nextId(),
-        title: 'Consulting Manager',
-        subtitle: profile?.full_name ?? 'Unknown',
-        profile,
-        children: projects.filter(Boolean).map((project) => buildProjectNode(project!)),
-      }
-      return cmNode
-    })
+    const realCms = Array.from(cmByUser.values())
+    const slotCount = Math.max(CM_SLOT_PROJECT_TARGETS.length, realCms.length)
+
+    const cmNodes: OrgNode[] = []
+    for (let i = 0; i < slotCount; i++) {
+      const target = CM_SLOT_PROJECT_TARGETS[i] ?? CM_SLOT_PROJECT_TARGETS[CM_SLOT_PROJECT_TARGETS.length - 1]
+      const real = realCms[i]
+      cmNodes.push(buildCmNode(real?.profile ?? null, real?.projects ?? [], target))
+    }
 
     vpNode.children = cmNodes
     return vpNode
-  }
-
-  function buildProjectNode(project: { id: string; key: string; name: string; type: ProjectType }): OrgNode {
-    const projectMembers = members.filter((m) => m.project?.id === project.id)
-    const pm = projectMembers.filter((m) => m.role === 'project_manager').map((m) => m.profile).filter(Boolean) as Profile[]
-    const analysts = projectMembers
-      .filter((m) => m.role === 'new_analyst' || m.role === 'senior_analyst')
-      .map((m) => m.profile)
-      .filter(Boolean) as Profile[]
-
-    const pmNode = seatNode('Project Manager', pm)
-    pmNode.children = analysts.map((a) => ({ id: nextId(), title: 'Analyst', subtitle: a.full_name, profile: a, children: [] }))
-
-    return {
-      id: nextId(),
-      title: project.name,
-      subtitle: project.key,
-      profile: null,
-      children: [pmNode],
-    }
   }
 
   const presidentNode = seatNode('President', president)
@@ -110,7 +141,8 @@ export default async function OrgChartPage() {
         <h1 className="text-xl font-bold text-gray-900">Org Chart</h1>
       </div>
       <p className="text-sm text-gray-500 mb-6">
-        Click on anyone to see their info. Built from live project assignments — people show up here once they&apos;re assigned as a consulting manager, project manager, or analyst on a project.
+        Click on anyone to see their info. Shows the full intended structure — real assignments fill in
+        automatically, everything else shows as Unassigned until someone&apos;s added.
       </p>
 
       <OrgChartTree root={presidentNode} />
