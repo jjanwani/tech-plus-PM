@@ -67,6 +67,9 @@ export default function LoginPage() {
                   Personal Gmail accounts are not permitted.
                 </p>
               </div>
+              <p className="text-xs text-gray-400 text-center">
+                First time here? An admin needs to add you before you can sign in.
+              </p>
             </div>
           </div>
 

@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation'
 import { Shield } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { UserTable } from '@/components/admin/user-table'
-import { AccessOverview } from '@/components/admin/access-overview'
-import type { Profile, PendingInvite, UserRole } from '@/types'
+import { UserDirectory } from '@/components/admin/user-directory'
+import { hasMinRole } from '@/lib/utils/permissions'
+import type { Profile, PendingInvite, UserRole, AttendanceRecord, Strike } from '@/types'
 
 export default async function AdminUsersPage() {
   const supabase = await getSupabaseServerClient()
@@ -11,23 +11,30 @@ export default async function AdminUsersPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  // Check if user is admin
   const { data: profile } = await supabase
     .from('profiles')
     .select('is_admin, role')
     .eq('id', user.id)
     .single()
 
-  if (!profile?.is_admin) {
-    redirect('/')
-  }
+  if (!profile) redirect('/')
+  const canView = profile.is_admin || hasMinRole(profile.role as UserRole, 'project_manager')
+  if (!canView) redirect('/')
 
-  const [{ data: allUsers }, { data: pendingInvites }, { data: memberships }, { data: allProjects }] = await Promise.all([
+  const canManageAttendance = profile.is_admin || ['vp_operations', 'president'].includes(profile.role)
+
+  const [
+    { data: allUsers },
+    { data: pendingInvites },
+    { data: memberships },
+    { data: allProjects },
+    { data: attendanceRecordsRaw },
+    { data: strikesRaw },
+  ] = await Promise.all([
     supabase.from('profiles').select('*').order('full_name'),
     supabase
       .from('pending_invites')
       .select('*, inviter:invited_by(id,full_name,avatar_url)')
-      .is('project_id', null)
       .order('created_at'),
     supabase
       .from('project_members')
@@ -37,6 +44,14 @@ export default async function AdminUsersPage() {
       .select('id, key, name')
       .eq('is_archived', false)
       .order('name'),
+    supabase
+      .from('attendance_records')
+      .select('*, event:attendance_events(id,title,event_date,created_by,created_at)')
+      .order('created_at', { ascending: false }),
+    supabase
+      .from('strikes')
+      .select('*, issuer:issued_by(id,full_name,avatar_url)')
+      .order('created_at', { ascending: false }),
   ])
 
   return (
@@ -46,20 +61,20 @@ export default async function AdminUsersPage() {
         <h1 className="text-xl font-bold text-gray-900">User Management</h1>
       </div>
       <p className="text-sm text-gray-500 mb-6">
-        Manage all users, roles, and access across Tech Plus Consulting.
+        Manage all users, roles, access, attendance, and strikes across Tech Plus Consulting.
       </p>
 
-      <UserTable
+      <UserDirectory
         initialUsers={(allUsers ?? []) as Profile[]}
         initialPendingInvites={(pendingInvites ?? []) as PendingInvite[]}
-      />
-
-      <AccessOverview
-        users={(allUsers ?? []) as Profile[]}
-        memberships={
+        initialMemberships={
           (memberships ?? []) as unknown as { user_id: string; role: UserRole; project: { id: string; key: string; name: string } | null }[]
         }
         projects={(allProjects ?? []) as { id: string; key: string; name: string }[]}
+        initialRecords={(attendanceRecordsRaw ?? []) as unknown as AttendanceRecord[]}
+        initialStrikes={(strikesRaw ?? []) as unknown as Strike[]}
+        currentProfile={{ role: profile.role as UserRole, is_admin: profile.is_admin }}
+        canManageAttendance={canManageAttendance}
       />
     </div>
   )

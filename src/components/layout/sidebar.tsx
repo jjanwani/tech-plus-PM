@@ -16,6 +16,7 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Network,
 } from 'lucide-react'
 import { cn } from '@/lib/utils/cn'
 import { getSupabaseBrowserClient } from '@/lib/supabase/client'
@@ -42,6 +43,7 @@ const navItems = [
   { label: 'Dashboard', href: '/', icon: LayoutDashboard },
   { label: 'Projects', href: '/projects', icon: FolderKanban },
   { label: 'Issues', href: '/issues', icon: CheckSquare },
+  { label: 'Org Chart', href: '/org-chart', icon: Network },
   { label: 'Templates', href: '/templates', icon: FileText },
   { label: 'Notifications', href: '/notifications', icon: Bell },
 ]
@@ -50,7 +52,7 @@ const navItems = [
 // admins or anyone meeting that role threshold. Each Admin Files folder is
 // its own page/nav entry, grouped under a 'Files' sub-label.
 const adminItems: AdminNavItem[] = [
-  { label: 'Users', href: '/admin/users', icon: Users, adminOnly: true },
+  { label: 'Users', href: '/admin/users', icon: Users, minRole: 'project_manager' },
   { label: 'Client Applications', href: '/clients', icon: Briefcase, minRole: 'consulting_manager' },
   { label: 'Assign Deliverable', href: '/admin/deliverables', icon: ListChecks, adminOnly: true },
   ...ADMIN_FILE_CATEGORIES.map((category, i) => ({

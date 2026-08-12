@@ -27,6 +27,18 @@ export function isAdmin(userRole: UserRole): boolean {
   return hasMinRole(userRole, 'president')
 }
 
+// Mirrors the strikes_manage RLS policy (role_rank() in migration 029):
+// a strike can only be issued by someone whose global role outranks the
+// target's, e.g. only vp_internal/vp_external/vp_operations/president can
+// strike a consulting_manager.
+export function canAssignStrike(
+  issuer: { role: UserRole; is_admin: boolean },
+  targetRole: UserRole
+): boolean {
+  if (issuer.is_admin) return true
+  return ROLE_WEIGHT[issuer.role] > ROLE_WEIGHT[targetRole]
+}
+
 // Mirrors the deliverables_manage / members_manage RLS policies, which gate
 // writes on the caller's role *within the project* (project_members.role),
 // not their global profile role.

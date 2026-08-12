@@ -388,3 +388,31 @@ export const ROLE_LABELS: Record<UserRole, string> = {
   vp_operations: 'VP Operations',
   president: 'President',
 }
+
+export interface AttendanceEvent {
+  id: string
+  title: string
+  event_date: string
+  created_by: string
+  created_at: string
+}
+
+export interface AttendanceRecord {
+  id: string
+  event_id: string
+  user_id: string
+  is_excused: boolean
+  excused_by: string | null
+  excused_at: string | null
+  created_at: string
+  event?: AttendanceEvent
+}
+
+export interface Strike {
+  id: string
+  user_id: string
+  issued_by: string
+  reason: string | null
+  created_at: string
+  issuer?: Profile
+}
