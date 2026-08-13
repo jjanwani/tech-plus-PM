@@ -31,6 +31,7 @@ export interface Profile {
   phone_number: string | null
   grad_year: number | null
   college: string | null
+  consulting_track: ProjectType | null
   created_at: string
   updated_at: string
 }

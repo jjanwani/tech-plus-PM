@@ -1,8 +1,8 @@
 import { redirect } from 'next/navigation'
 import { Network } from 'lucide-react'
 import { getSupabaseServerClient } from '@/lib/supabase/server'
-import { OrgChartTree, type OrgNode } from '@/components/org-chart/org-chart-tree'
-import type { Profile, ProjectType } from '@/types'
+import { OrgChartTree, type OrgNode, type SlotAssign } from '@/components/org-chart/org-chart-tree'
+import type { Profile, ProjectType, UserRole } from '@/types'
 
 interface ProjectRef {
   id: string
@@ -33,28 +33,34 @@ function nextId() {
   return `node-${nodeCounter}`
 }
 
-function placeholderNode(title: string): OrgNode {
-  return { id: nextId(), title, subtitle: 'Unassigned', profile: null, children: [] }
+function placeholderNode(title: string, assign?: SlotAssign): OrgNode {
+  return { id: nextId(), title, subtitle: 'Unassigned', profile: null, children: [], assign }
 }
 
-function personNode(title: string, profile: Profile): OrgNode {
-  return { id: nextId(), title, subtitle: profile.full_name, profile, children: [] }
+function personNode(title: string, profile: Profile, assign?: SlotAssign): OrgNode {
+  return { id: nextId(), title, subtitle: profile.full_name, profile, children: [], assign }
 }
 
-function seatNode(title: string, people: Profile[]): OrgNode {
-  if (people.length === 0) return placeholderNode(title)
+function seatNode(title: string, people: Profile[], assign?: SlotAssign): OrgNode {
+  if (people.length === 0) return placeholderNode(title, assign)
   return {
-    ...personNode(title, people[0]),
-    children: people.slice(1).map((p) => personNode(title, p)),
+    ...personNode(title, people[0], assign),
+    children: people.slice(1).map((p) => personNode(title, p, assign)),
   }
 }
 
 // Real entries each get their own connected box; anything left over to
 // reach `target` gets its own individual placeholder box too.
-function fillSlots<T>(title: string, real: T[], target: number, toNode: (item: T) => OrgNode): OrgNode[] {
+function fillSlots<T>(
+  title: string,
+  real: T[],
+  target: number,
+  toNode: (item: T) => OrgNode,
+  placeholderAssign?: SlotAssign
+): OrgNode[] {
   const nodes = real.map(toNode)
   const missing = Math.max(0, target - real.length)
-  for (let i = 0; i < missing; i++) nodes.push(placeholderNode(title))
+  for (let i = 0; i < missing; i++) nodes.push(placeholderNode(title, placeholderAssign))
   return nodes
 }
 
@@ -63,13 +69,15 @@ export default async function OrgChartPage() {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) redirect('/auth/login')
 
-  const [{ data: profiles }, { data: membersRaw }] = await Promise.all([
+  const [{ data: viewerProfile }, { data: profiles }, { data: membersRaw }] = await Promise.all([
+    supabase.from('profiles').select('is_admin').eq('id', user.id).single(),
     supabase.from('profiles').select('*').order('full_name'),
     supabase
       .from('project_members')
       .select('user_id, role, project:projects(id,key,name,type,is_archived), profile:profiles(*)'),
   ])
 
+  const isAdmin = Boolean(viewerProfile?.is_admin)
   const allProfiles = (profiles ?? []) as Profile[]
   const members = ((membersRaw ?? []) as unknown as MemberRow[]).filter((m) => m.project && !m.project.is_archived)
 
@@ -86,21 +94,25 @@ export default async function OrgChartPage() {
       .map((m) => m.profile)
       .filter((p): p is Profile => Boolean(p))
 
-    const pmNode = seatNode('Project Manager', pm)
-    pmNode.children = fillSlots('Analyst', analysts, ANALYSTS_PER_PROJECT_TARGET, (a) => personNode('Analyst', a))
+    const pmAssign: SlotAssign = { kind: 'project_member', projectId: project.id, memberRole: 'project_manager' }
+    const analystAssign: SlotAssign = { kind: 'project_member', projectId: project.id, memberRole: 'new_analyst' }
+
+    const pmNode = seatNode('Project Manager', pm, pmAssign)
+    pmNode.children = fillSlots('Analyst', analysts, ANALYSTS_PER_PROJECT_TARGET, (a) => personNode('Analyst', a, analystAssign), analystAssign)
 
     return { id: nextId(), title: project.name, subtitle: project.key, profile: null, children: [pmNode] }
   }
 
-  function buildCmNode(profile: Profile | null, realProjects: ProjectRef[], target: number): OrgNode {
+  function buildCmNode(profile: Profile | null, realProjects: ProjectRef[], target: number, projectType: ProjectType): OrgNode {
     const projectNodes = fillSlots('Project', realProjects, target, (p) => buildProjectNode(p))
+    const assign: SlotAssign = { kind: 'role', role: 'consulting_manager', consultingTrack: projectType }
     return profile
-      ? { ...personNode('Consulting Manager', profile), children: projectNodes }
-      : { ...placeholderNode('Consulting Manager'), children: projectNodes }
+      ? { ...personNode('Consulting Manager', profile, assign), children: projectNodes }
+      : { ...placeholderNode('Consulting Manager', assign), children: projectNodes }
   }
 
-  function buildVpBranch(title: string, vpPeople: Profile[], projectType: ProjectType): OrgNode {
-    const vpNode = seatNode(title, vpPeople)
+  function buildVpBranch(title: string, vpPeople: Profile[], projectType: ProjectType, vpRole: UserRole): OrgNode {
+    const vpNode = seatNode(title, vpPeople, { kind: 'role', role: vpRole })
 
     const cmByUser = new Map<string, { profile: Profile; projects: ProjectRef[] }>()
     for (const m of members) {
@@ -110,6 +122,15 @@ export default async function OrgChartPage() {
       cmByUser.set(m.user_id, existing)
     }
 
+    // People appointed as a Consulting Manager on this side but not yet
+    // linked to any specific project still count as "real" here, so
+    // assigning someone from the org chart shows up immediately.
+    for (const p of allProfiles) {
+      if (p.role === 'consulting_manager' && p.consulting_track === projectType && !cmByUser.has(p.id)) {
+        cmByUser.set(p.id, { profile: p, projects: [] })
+      }
+    }
+
     const realCms = Array.from(cmByUser.values())
     const slotCount = Math.max(CM_SLOT_PROJECT_TARGETS.length, realCms.length)
 
@@ -117,17 +138,17 @@ export default async function OrgChartPage() {
     for (let i = 0; i < slotCount; i++) {
       const target = CM_SLOT_PROJECT_TARGETS[i] ?? CM_SLOT_PROJECT_TARGETS[CM_SLOT_PROJECT_TARGETS.length - 1]
       const real = realCms[i]
-      cmNodes.push(buildCmNode(real?.profile ?? null, real?.projects ?? [], target))
+      cmNodes.push(buildCmNode(real?.profile ?? null, real?.projects ?? [], target, projectType))
     }
 
     vpNode.children = cmNodes
     return vpNode
   }
 
-  const presidentNode = seatNode('President', president)
-  const vpExternal = buildVpBranch('VP External', vpExternalPeople, 'external')
-  const vpInternal = buildVpBranch('VP Internal', vpInternalPeople, 'internal')
-  const vpOperations = seatNode('VP Operations', vpOperationsPeople)
+  const presidentNode = seatNode('President', president, { kind: 'role', role: 'president' })
+  const vpExternal = buildVpBranch('VP External', vpExternalPeople, 'external', 'vp_external')
+  const vpInternal = buildVpBranch('VP Internal', vpInternalPeople, 'internal', 'vp_internal')
+  const vpOperations = seatNode('VP Operations', vpOperationsPeople, { kind: 'role', role: 'vp_operations' })
 
   return (
     <div className="p-6 flex flex-col h-[calc(100vh-4rem)]">
@@ -138,10 +159,18 @@ export default async function OrgChartPage() {
       <p className="text-sm text-gray-500 mb-6 flex-shrink-0">
         Click on anyone to see their info. Shows the full intended structure — real assignments fill in
         automatically, everything else shows as Unassigned until someone&apos;s added.
+        {isAdmin && ' As an admin, click any slot to assign or reassign who fills it.'}
       </p>
 
       <div className="flex-1 min-h-0">
-        <OrgChartTree president={presidentNode} vpExternal={vpExternal} vpInternal={vpInternal} vpOperations={vpOperations} />
+        <OrgChartTree
+          president={presidentNode}
+          vpExternal={vpExternal}
+          vpInternal={vpInternal}
+          vpOperations={vpOperations}
+          isAdmin={isAdmin}
+          allUsers={allProfiles}
+        />
       </div>
     </div>
   )

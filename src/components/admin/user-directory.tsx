@@ -1,13 +1,14 @@
 'use client'
 
 import { useMemo, useState } from 'react'
-import { Save, CheckCircle, XCircle, UserPlus, Clock, Trash2, X, Search, Plus, Check, CalendarPlus, ShieldAlert, ChevronRight } from 'lucide-react'
+import { Save, CheckCircle, XCircle, UserPlus, Clock, Trash2, X, Search, Plus, CalendarPlus, ShieldAlert, ChevronRight } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils/cn'
 import { ROLE_LABELS } from '@/types'
 import type { Profile, UserRole, PendingInvite, AttendanceRecord, Strike, AttendanceEvent } from '@/types'
 import { UserDetailModal } from './user-detail-modal'
 import { AttendanceEventModal } from './attendance-event-modal'
+import { AssignProjectsModal } from './assign-projects-modal'
 
 interface Membership {
   user_id: string
@@ -82,9 +83,6 @@ export function UserDirectory({
   const [detailUserId, setDetailUserId] = useState<string | null>(null)
 
   const [assigningUserId, setAssigningUserId] = useState<string | null>(null)
-  const [selectedProjectId, setSelectedProjectId] = useState('')
-  const [selectedRole, setSelectedRole] = useState<UserRole>('new_analyst')
-  const [assignSaving, setAssignSaving] = useState(false)
 
   const membershipsByUser = useMemo(() => {
     const map = new Map<string, Membership[]>()
@@ -205,35 +203,34 @@ export function UserDirectory({
 
   function openAssign(userId: string) {
     setAssigningUserId(userId)
-    setSelectedProjectId('')
-    setSelectedRole('new_analyst')
   }
 
-  async function handleAssign(userId: string) {
-    if (!selectedProjectId) return
-    setAssignSaving(true)
-    try {
-      const res = await fetch(`/api/projects/${selectedProjectId}/members`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, role: selectedRole }),
+  // Project membership role always mirrors the person's existing org role —
+  // no separate role picker when assigning them to a project.
+  async function handleAssignProjects(userId: string, projectIds: string[]) {
+    const targetUser = users.find((u) => u.id === userId)
+    if (!targetUser) return
+
+    const assignedProjects = await Promise.all(
+      projectIds.map(async (projectId) => {
+        const res = await fetch(`/api/projects/${projectId}/members`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user_id: userId, role: targetUser.role }),
+        })
+        if (!res.ok) {
+          const err = await res.json()
+          throw new Error(err.error ?? 'Failed to assign')
+        }
+        return projects.find((p) => p.id === projectId) ?? null
       })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error ?? 'Failed to assign')
-      }
-      const project = projects.find((p) => p.id === selectedProjectId) ?? null
-      setMemberships((prev) => [
-        ...prev.filter((m) => !(m.user_id === userId && m.project?.id === selectedProjectId)),
-        { user_id: userId, role: selectedRole, project },
-      ])
-      setAssigningUserId(null)
-      toast.success('Assigned to project')
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to assign')
-    } finally {
-      setAssignSaving(false)
-    }
+    )
+
+    setMemberships((prev) => [
+      ...prev.filter((m) => !(m.user_id === userId && projectIds.includes(m.project?.id ?? ''))),
+      ...assignedProjects.filter((p): p is ProjectRef => Boolean(p)).map((project) => ({ user_id: userId, role: targetUser.role, project })),
+    ])
+    toast.success(`Assigned to ${assignedProjects.length} project${assignedProjects.length !== 1 ? 's' : ''}`)
   }
 
   async function handleRemoveMembership(userId: string, projectId: string) {
@@ -265,6 +262,9 @@ export function UserDirectory({
 
   const inputClass = 'px-2 py-1 border border-gray-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#00274c]/20 focus:border-[#00274c]'
   const detailUser = detailUserId ? users.find((u) => u.id === detailUserId) ?? null : null
+  const assigningUser = assigningUserId ? users.find((u) => u.id === assigningUserId) ?? null : null
+  const assigningUserProjectIds = new Set((membershipsByUser.get(assigningUserId ?? '') ?? []).map((m) => m.project?.id))
+  const assigningAvailableProjects = projects.filter((p) => !assigningUserProjectIds.has(p.id))
 
   return (
     <div>
@@ -444,7 +444,7 @@ export function UserDirectory({
 
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap items-center gap-1.5 max-w-[220px]">
-                      {userProjects.length === 0 && assigningUserId !== user.id && (
+                      {userProjects.length === 0 && (
                         <span className="text-gray-300 text-xs">No projects</span>
                       )}
                       {userProjects.map((m) => (
@@ -466,27 +466,7 @@ export function UserDirectory({
                           )}
                         </span>
                       ))}
-                      {canManageUsers && (assigningUserId === user.id ? (
-                        <div className="flex items-center gap-1 flex-wrap">
-                          <select value={selectedProjectId} onChange={(e) => setSelectedProjectId(e.target.value)} className="px-1.5 py-0.5 border border-gray-200 rounded text-xs bg-white">
-                            <option value="">Project…</option>
-                            {availableProjects.map((p) => (
-                              <option key={p.id} value={p.id}>{p.key}</option>
-                            ))}
-                          </select>
-                          <select value={selectedRole} onChange={(e) => setSelectedRole(e.target.value as UserRole)} className="px-1.5 py-0.5 border border-gray-200 rounded text-xs bg-white">
-                            {ROLES.map((r) => (
-                              <option key={r} value={r}>{ROLE_LABELS[r]}</option>
-                            ))}
-                          </select>
-                          <button type="button" onClick={() => handleAssign(user.id)} disabled={!selectedProjectId || assignSaving} className="p-1 rounded bg-[#00274c] text-white disabled:opacity-50 hover:bg-[#15345c]">
-                            <Check className="w-3 h-3" />
-                          </button>
-                          <button type="button" onClick={() => setAssigningUserId(null)} className="p-1 rounded bg-gray-100 text-gray-500 hover:bg-gray-200">
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ) : (
+                      {canManageUsers && (
                         <button
                           type="button"
                           onClick={() => openAssign(user.id)}
@@ -499,7 +479,7 @@ export function UserDirectory({
                           <Plus className="w-3 h-3" />
                           Assign
                         </button>
-                      ))}
+                      )}
                     </div>
                   </td>
 
@@ -618,6 +598,16 @@ export function UserDirectory({
             ...prev.filter((s) => s.user_id !== detailUser.id),
             ...updated,
           ])}
+        />
+      )}
+
+      {assigningUser && (
+        <AssignProjectsModal
+          userName={assigningUser.full_name}
+          userRole={assigningUser.role}
+          availableProjects={assigningAvailableProjects}
+          onClose={() => setAssigningUserId(null)}
+          onAssign={(projectIds) => handleAssignProjects(assigningUser.id, projectIds)}
         />
       )}
     </div>
