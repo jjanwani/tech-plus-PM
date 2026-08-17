@@ -26,12 +26,20 @@ export async function POST(_req: NextRequest, { params }: Params) {
 
   const { error } = await supabase
     .from('issue_watchers')
-    .insert({ issue_id: issueId, user_id: user.id })
+    .upsert({ issue_id: issueId, user_id: user.id }, { onConflict: 'issue_id,user_id' })
 
-  if (error && !error.message.includes('duplicate')) {
-    return NextResponse.json({ error: error.message }, { status: 500 })
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+
+  const { data: profile, error: profileError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('id', user.id)
+    .single()
+
+  if (profileError || !profile) {
+    return NextResponse.json({ error: profileError?.message ?? 'Profile not found' }, { status: 500 })
   }
-  return NextResponse.json({ success: true })
+  return NextResponse.json(profile)
 }
 
 export async function DELETE(_req: NextRequest, { params }: Params) {

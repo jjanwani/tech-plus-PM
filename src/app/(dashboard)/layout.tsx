@@ -27,6 +27,10 @@ export default async function DashboardLayout({
     redirect('/auth/login')
   }
 
+  if (!profile.onboarding_completed) {
+    redirect('/onboarding')
+  }
+
   return (
     <div className="flex h-screen overflow-hidden bg-gray-50">
       <Sidebar profile={profile as Profile} />

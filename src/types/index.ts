@@ -32,6 +32,9 @@ export interface Profile {
   grad_year: number | null
   college: string | null
   consulting_track: ProjectType | null
+  resume_url: string | null
+  resume_file_name: string | null
+  onboarding_completed: boolean
   created_at: string
   updated_at: string
 }

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Search, LogOut, User } from 'lucide-react'
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { NotificationBell } from '@/components/notifications/notification-bell'
@@ -78,13 +79,13 @@ export function TopNav({ profile }: TopNavProps) {
                 <p className="text-xs text-gray-500">{profile.email}</p>
               </div>
               <DropdownMenu.Item asChild>
-                <a
-                  href="#"
+                <Link
+                  href="/profile"
                   className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 cursor-pointer outline-none"
                 >
                   <User className="w-4 h-4" />
                   Profile
-                </a>
+                </Link>
               </DropdownMenu.Item>
               <DropdownMenu.Separator className="my-1 border-t border-gray-100" />
               <DropdownMenu.Item asChild>
